@@ -1,0 +1,22 @@
+---
+MainSourceFile:  '/home/wangyon1/projects/supra-projects/golden/supra/oneapi/src/SupraLib/ContainerFactory.h'
+Replacements:
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/ContainerFactory.h'
+    Offset:          562
+    Length:          0
+    ReplacementText: '#include <CL/sycl.hpp>
+#include <dpct/dpct.hpp>
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/ContainerFactory.h'
+    Offset:          913
+    Length:          12
+    ReplacementText: 'sycl::queue *'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+...

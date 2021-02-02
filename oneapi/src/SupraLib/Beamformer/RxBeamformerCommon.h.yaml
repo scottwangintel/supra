@@ -1,0 +1,72 @@
+---
+MainSourceFile:  '/home/wangyon1/projects/supra-projects/golden/supra/oneapi/src/SupraLib/Beamformer/RxBeamformerCommon.h'
+Replacements:
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Beamformer/RxBeamformerCommon.h'
+    Offset:          549
+    Length:          0
+    ReplacementText: '#include <CL/sycl.hpp>
+#include <dpct/dpct.hpp>
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Beamformer/RxBeamformerCommon.h'
+    Offset:          714
+    Length:          11
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Beamformer/RxBeamformerCommon.h'
+    Offset:          815
+    Length:          11
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Beamformer/RxBeamformerCommon.h'
+    Offset:          1036
+    Length:          11
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Beamformer/RxBeamformerCommon.h'
+    Offset:          1316
+    Length:          11
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Beamformer/RxBeamformerCommon.h'
+    Offset:          1462
+    Length:          72
+    ReplacementText: 'sycl::sqrt(windowFunction.get(distance.x)*
+				windowFunction.get(distance.y))'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Beamformer/RxBeamformerCommon.h'
+    Offset:          1599
+    Length:          11
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Beamformer/RxBeamformerCommon.h'
+    Offset:          1815
+    Length:          108
+    ReplacementText: 'sycl::sqrt(windowFunction.getShared(sharedData, distance.x)*
+				windowFunction.getShared(sharedData, distance.y))'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+...

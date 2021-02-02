@@ -1,0 +1,779 @@
+---
+MainSourceFile:  '/home/wangyon1/projects/supra-projects/golden/supra/oneapi/src/SupraLib/Container.h'
+Replacements:
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          531
+    Length:          0
+    ReplacementText: '#include <CL/sycl.hpp>
+#include <dpct/dpct.hpp>
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          728
+    Length:          0
+    ReplacementText: '
+#include <chrono>
+
+#include <future>
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          1688
+    Length:          0
+    ReplacementText: '				/*
+				DPCT1003:10: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+				*/
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          1705
+    Length:          15
+    ReplacementText: '(associatedStream->memcpy'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          1771
+    Length:          19
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          1790
+    Length:          18
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          1809
+    Length:          0
+    ReplacementText: ', 0)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          1887
+    Length:          0
+    ReplacementText: '				/*
+				DPCT1003:11: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+				*/
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          1904
+    Length:          15
+    ReplacementText: '(associatedStream->memcpy'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          1970
+    Length:          19
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          1989
+    Length:          18
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          2008
+    Length:          0
+    ReplacementText: ', 0)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          2472
+    Length:          0
+    ReplacementText: '			/*
+			DPCT1003:12: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+			*/
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          2488
+    Length:          15
+    ReplacementText: '(associatedStream->memcpy'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          2552
+    Length:          19
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          2571
+    Length:          18
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          2590
+    Length:          0
+    ReplacementText: ', 0)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3150
+    Length:          0
+    ReplacementText: '				/*
+				DPCT1003:13: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+				*/
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3167
+    Length:          15
+    ReplacementText: '(source.getStream()->memcpy'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3235
+    Length:          19
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3254
+    Length:          20
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3275
+    Length:          0
+    ReplacementText: ', 0)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3390
+    Length:          0
+    ReplacementText: '				/*
+				DPCT1003:14: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+				*/
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3407
+    Length:          15
+    ReplacementText: '(source.getStream()->memcpy'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3475
+    Length:          19
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3494
+    Length:          20
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3515
+    Length:          0
+    ReplacementText: ', 0)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3629
+    Length:          0
+    ReplacementText: '				/*
+				DPCT1003:15: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+				*/
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3646
+    Length:          15
+    ReplacementText: '(source.getStream()->memcpy'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3714
+    Length:          19
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3733
+    Length:          20
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3754
+    Length:          0
+    ReplacementText: ', 0)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3803
+    Length:          0
+    ReplacementText: '				/*
+				DPCT1003:16: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+				*/
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3820
+    Length:          15
+    ReplacementText: '(source.getStream()->memcpy'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3888
+    Length:          19
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3907
+    Length:          20
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          3928
+    Length:          0
+    ReplacementText: ', 0)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          4129
+    Length:          0
+    ReplacementText: ' try '
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          4148
+    Length:          0
+    ReplacementText: '			/*
+			DPCT1027:3: The call to cudaStreamQuery was replaced with 0, because DPC++ currently does not support query operations on queues.
+			*/
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          4162
+    Length:          35
+    ReplacementText: '0'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          4213
+    Length:          11
+    ReplacementText: '0'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          4235
+    Length:          17
+    ReplacementText: '600'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          4263
+    Length:          24
+    ReplacementText: '4'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          4442
+    Length:          24
+    ReplacementText: '4'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          4488
+    Length:          11
+    ReplacementText: '0'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          4792
+    Length:          12
+    ReplacementText: 'sycl::queue'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          4805
+    Length:          0
+    ReplacementText: '*'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          4808
+    Length:          11
+    ReplacementText: int
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          5114
+    Length:          0
+    ReplacementText: '
+		catch (sycl::exception const &exc) {
+		  std::cerr << exc.what() << "Exception caught at file:" << __FILE__ << ", line:" << __LINE__ << std::endl;
+		  std::exit(1);
+		}'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          5432
+    Length:          0
+    ReplacementText: '				/*
+				DPCT1003:17: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+				*/
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          5449
+    Length:          15
+    ReplacementText: '(getStream()->memcpy'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          5507
+    Length:          24
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          5531
+    Length:          13
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          5545
+    Length:          0
+    ReplacementText: ', 0)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          5625
+    Length:          0
+    ReplacementText: '				/*
+				DPCT1003:18: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+				*/
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          5642
+    Length:          10
+    ReplacementText: '(dpct::get_default_queue().memcpy'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          5695
+    Length:          19
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          5715
+    Length:          0
+    ReplacementText: '.wait(), 0)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          5876
+    Length:          0
+    ReplacementText: '			/*
+			DPCT1003:19: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+			*/
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          5892
+    Length:          10
+    ReplacementText: '(dpct::get_default_queue().memcpy'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          5945
+    Length:          19
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          5965
+    Length:          0
+    ReplacementText: '.wait(), 0)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          6060
+    Length:          0
+    ReplacementText: '				/*
+				DPCT1003:4: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+				*/
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          6077
+    Length:          37
+    ReplacementText: '(m_creationEvent.wait_and_throw(), 0)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          6117
+    Length:          0
+    ReplacementText: '				/*
+				DPCT1027:5: The call to cudaEventDestroy was replaced with 0, because this call is redundant in DPC++.
+				*/
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          6134
+    Length:          33
+    ReplacementText: '0'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          6978
+    Length:          0
+    ReplacementText: '				/*
+				DPCT1027:6: The call to cudaEventCreateWithFlags was replaced with 0, because this call is redundant in DPC++.
+				*/
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          6995
+    Length:          66
+    ReplacementText: '0'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7069
+    Length:          0
+    ReplacementText: '			/*
+			DPCT1012:7: Detected kernel execution time measurement pattern and generated an initial code for time measurements in SYCL. You can change the way time is measured depending on your goals.
+			*/
+			/*
+			DPCT1024:8: The original code returned the error code that was further consumed by the program logic. This original code was replaced with 0. You may need to rewrite the program logic consuming the error code.
+			*/
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7072
+    Length:          0
+    ReplacementText: 'm_creationEvent_ct1 = std::chrono::steady_clock::now(); 
+			'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7085
+    Length:          52
+    ReplacementText: '0'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7213
+    Length:          12
+    ReplacementText: 'sycl::queue *'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7227
+    Length:          11
+    ReplacementText: int
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7296
+    Length:          12
+    ReplacementText: 'sycl::queue *'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7310
+    Length:          11
+    ReplacementText: int
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7331
+    Length:          0
+    ReplacementText: '			/*
+			DPCT1003:9: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
+			*/
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7347
+    Length:          94
+    ReplacementText: '(std::async([&]() { m_associatedStream->wait(); &(Container<T>::cudaDeleteCallback)(m_associatedStream, 0, funcPointer); }), 0)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7487
+    Length:          10
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7516
+    Length:          12
+    ReplacementText: 'sycl::queue'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7529
+    Length:          0
+    ReplacementText: '*'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7537
+    Length:          11
+    ReplacementText: int
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7615
+    Length:          12
+    ReplacementText: 'sycl::queue *'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7629
+    Length:          11
+    ReplacementText: int
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7691
+    Length:          12
+    ReplacementText: 'sycl::queue *'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7705
+    Length:          11
+    ReplacementText: int
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7763
+    Length:          12
+    ReplacementText: 'sycl::queue *'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          7777
+    Length:          11
+    ReplacementText: int
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          8025
+    Length:          11
+    ReplacementText: 'sycl::event'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Container.h'
+    Offset:          8053
+    Length:          0
+    ReplacementText: '
+		std::chrono::time_point<std::chrono::steady_clock> m_creationEvent_ct1;'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+...

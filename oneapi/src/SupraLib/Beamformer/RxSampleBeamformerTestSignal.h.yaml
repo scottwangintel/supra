@@ -1,0 +1,30 @@
+---
+MainSourceFile:  '/home/wangyon1/projects/supra-projects/golden/supra/oneapi/src/SupraLib/Beamformer/RxSampleBeamformerTestSignal.h'
+Replacements:
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Beamformer/RxSampleBeamformerTestSignal.h'
+    Offset:          569
+    Length:          0
+    ReplacementText: '#include <CL/sycl.hpp>
+#include <dpct/dpct.hpp>
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Beamformer/RxSampleBeamformerTestSignal.h'
+    Offset:          927
+    Length:          11
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Beamformer/RxSampleBeamformerTestSignal.h'
+    Offset:          2925
+    Length:          11
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+...

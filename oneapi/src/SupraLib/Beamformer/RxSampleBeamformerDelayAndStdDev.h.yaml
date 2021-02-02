@@ -1,0 +1,46 @@
+---
+MainSourceFile:  '/home/wangyon1/projects/supra-projects/golden/supra/oneapi/src/SupraLib/Beamformer/RxSampleBeamformerDelayAndStdDev.h'
+Replacements:
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Beamformer/RxSampleBeamformerDelayAndStdDev.h'
+    Offset:          577
+    Length:          0
+    ReplacementText: '#include <CL/sycl.hpp>
+#include <dpct/dpct.hpp>
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Beamformer/RxSampleBeamformerDelayAndStdDev.h'
+    Offset:          1385
+    Length:          11
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Beamformer/RxSampleBeamformerDelayAndStdDev.h'
+    Offset:          4750
+    Length:          8
+    ReplacementText: 'sycl::sqrt(sd)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Beamformer/RxSampleBeamformerDelayAndStdDev.h'
+    Offset:          4932
+    Length:          11
+    ReplacementText: ''
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/Beamformer/RxSampleBeamformerDelayAndStdDev.h'
+    Offset:          7652
+    Length:          8
+    ReplacementText: 'sycl::sqrt(sd)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+...

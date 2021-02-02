@@ -1,0 +1,56 @@
+---
+MainSourceFile:  '/home/wangyon1/projects/supra-projects/golden/supra/oneapi/src/SupraLib/utilities/FirFilterFactory.h'
+Replacements:
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/utilities/FirFilterFactory.h'
+    Offset:          1237
+    Length:          0
+    ReplacementText: '#include <CL/sycl.hpp>
+#include <dpct/dpct.hpp>
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/utilities/FirFilterFactory.h'
+    Offset:          1299
+    Length:          0
+    ReplacementText: '
+#include <cmath>
+'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/utilities/FirFilterFactory.h'
+    Offset:          3223
+    Length:          19
+    ReplacementText: '&dpct::get_default_queue()'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/utilities/FirFilterFactory.h'
+    Offset:          6147
+    Length:          48
+    ReplacementText: '(2 * ((ElementType)n - maxN / 2) / maxN) * (2 * ((ElementType)n - maxN / 2) / maxN)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/utilities/FirFilterFactory.h'
+    Offset:          7435
+    Length:          21
+    ReplacementText: 'pow(x / (T)2.0, (T)k)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+  - FilePath:        '/home/wangyon1/projects/supra-projects/golden/supra/src/SupraLib/utilities/FirFilterFactory.h'
+    Offset:          7519
+    Length:          39
+    ReplacementText: 'pow(xPower / (T)factorial[k-1], (T)2.0)'
+    ConstantFlag:    ''
+    ConstantOffset:  0
+    InitStr:         ''
+    NewHostVarName:  ''
+...
