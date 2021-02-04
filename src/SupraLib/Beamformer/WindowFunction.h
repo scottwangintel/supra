@@ -88,7 +88,7 @@ namespace supra
 		{
 			return m_numEntriesPerFunction;
 		}
-
+		float m_scale;
 	private:
 		friend WindowFunction;
 		WindowFunctionGpu(size_t numEntriesPerFunction, const ElementType* data)
@@ -96,7 +96,7 @@ namespace supra
 			, m_data(data)
 			, m_scale(static_cast<float>(numEntriesPerFunction - 1)*0.5f) {};
 
-		float m_scale;
+		
 		uint32_t m_numEntriesPerFunction;
 		const ElementType* m_data;
 	};
@@ -136,9 +136,11 @@ namespace supra
 				return 0;
 			}
 		}
+
+		std::vector<ElementType> m_data;
 	private:
 		size_t m_numEntriesPerFunction;
-		std::vector<ElementType> m_data;
+		
 		std::unique_ptr<Container<ElementType> > m_dataGpu;
 		ElementType m_scale;
 		WindowType m_type;

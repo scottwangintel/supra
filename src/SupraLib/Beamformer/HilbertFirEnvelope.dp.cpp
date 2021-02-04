@@ -14,6 +14,7 @@
 #include "HilbertFirEnvelope.h"
 #include <utilities/utility.h>
 #include <utilities/FirFilterFactory.h>
+#include "helper.h"
 
 #include <dpct/dpl_utils.hpp>
 #include <oneapi/dpl/execution>
@@ -62,6 +63,54 @@ namespace supra
 
 	}
 
+	const int H_VEC_SIZE = 4;
+	template <typename InputType, typename OutputType>
+	void vec_kernelFilterDemodulation(
+		const InputType* __restrict__ signal,
+		const HilbertFirEnvelope::WorkType * __restrict__ filter,
+		OutputType * __restrict__ out,
+		const int numSamples,
+		const int numScanlines,
+		const int filterLength,
+		sycl::nd_item<3> item_ct1) {
+
+		int scanlineIdx = item_ct1.get_local_range().get(2) * item_ct1.get_group(2) + item_ct1.get_local_id(2);
+		int sampleIdx = item_ct1.get_local_range().get(1) * item_ct1.get_group(1) + item_ct1.get_local_id(1);
+
+		scanlineIdx *= H_VEC_SIZE;
+		if (scanlineIdx < numScanlines && sampleIdx < numSamples)
+		{
+			sycl::vec<HilbertFirEnvelope::WorkType, H_VEC_SIZE> accumulator(0.0);
+				
+			int startPoint = sampleIdx - filterLength / 2;
+			int endPoint = sampleIdx + filterLength / 2;
+			int currentFilterElement = 0;
+
+			for (int currentSample = startPoint;
+				currentSample <= endPoint;
+				currentSample ++, currentFilterElement++)
+			{
+				if (currentSample >= 0 && currentSample < numSamples)
+				{
+					sycl::vec<HilbertFirEnvelope::WorkType, H_VEC_SIZE> vec_sample(0.0);
+					#pragma unroll
+					for (int c = 0; c < H_VEC_SIZE; c++) {
+						vec_sample[c] = static_cast<HilbertFirEnvelope::WorkType>(signal[scanlineIdx + c +  currentSample * numScanlines]) 
+								* filter[currentFilterElement];
+					}
+					accumulator += vec_sample;
+				}
+			}
+			#pragma unroll
+			for (int c = 0; c < H_VEC_SIZE; c++) {
+				HilbertFirEnvelope::WorkType signalValue = static_cast<HilbertFirEnvelope::WorkType>(signal[scanlineIdx + c + sampleIdx*numScanlines]);
+				out[ scanlineIdx + c + sampleIdx * numScanlines ] = sycl::sqrt(squ(signalValue) + squ(accumulator[c]));
+			}
+		}
+
+	}
+
+
 	HilbertFirEnvelope::HilbertFirEnvelope(size_t filterLength)
 		: m_filterLength(filterLength)
 		, m_hilbertFilter(nullptr)
@@ -90,7 +139,7 @@ namespace supra
 		auto pEnv = make_shared<Container<OutputType> >(LocationGpu, inImageData->getStream(), numScanlines*numSamples);
 		sycl::range<3> blockSizeFilter(1, 8, 16);
 		sycl::range<3> gridSizeFilter(1, static_cast<unsigned int>((numSamples + blockSizeFilter[ 1 ] - 1) / blockSizeFilter[ 1 ]),
-									  static_cast<unsigned int>((numScanlines + blockSizeFilter[ 2 ] - 1) / blockSizeFilter[ 2 ]));
+									  static_cast<unsigned int>((numScanlines + blockSizeFilter[ 2 ] - 1) / blockSizeFilter[ 2 ] / H_VEC_SIZE));
 
 				static long hilbert_call_count = 0;
 
@@ -101,7 +150,7 @@ namespace supra
 						auto m_filterLength_ct5 = ( int )m_filterLength;
 
 						cgh.parallel_for(sycl::nd_range<3>(gridSizeFilter * blockSizeFilter, blockSizeFilter), [ = ](sycl::nd_item<3> item_ct1) {
-								kernelFilterDemodulation(inImageData_get_ct0, m_hilbertFilter_get_ct1, pEnv_get_ct2, numSamples, numScanlines, m_filterLength_ct5, item_ct1);
+								vec_kernelFilterDemodulation(inImageData_get_ct0, m_hilbertFilter_get_ct1, pEnv_get_ct2, numSamples, numScanlines, m_filterLength_ct5, item_ct1);
 						});
 				});
 

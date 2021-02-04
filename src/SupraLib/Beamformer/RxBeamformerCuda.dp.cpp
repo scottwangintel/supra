@@ -305,6 +305,87 @@ namespace supra
 		}
 	}
 
+
+	const int ROW_SIZE = 2;
+	template <class SampleBeamformer, bool interpolateRFlines, bool interpolateBetweenTransmits, typename RFType, typename ResultType, typename LocationType>
+	void mixed_rxBeamformingDTSPACEKernel(size_t numTransducerElements, size_t numReceivedChannels, size_t numTimesteps, const RFType* __restrict__ RF, size_t numTxScanlines, size_t numRxScanlines,
+		const ScanlineRxParameters3D* __restrict__ scanlinesDT, size_t numDs, const LocationType* __restrict__ dsDT, const LocationType* __restrict__ x_elemsDT, LocationType speedOfSound,
+		LocationType dt, uint32_t additionalOffset, LocationType F, const WindowFunctionGpu* __restrict__ windowFunction, ResultType* __restrict__ s,   sycl::nd_item<3> item_ct1, float* __restrict__ mdataGpu)
+	{
+		int r = item_ct1.get_local_range().get(1) * item_ct1.get_group(1) + item_ct1.get_local_id(1);			 //@suppress("Symbol is not resolved")
+																												 //@suppress("Field cannot be resolved")
+		int scanlineIdx = item_ct1.get_local_range().get(2) * item_ct1.get_group(2) + item_ct1.get_local_id(2);	 //@suppress("Symbol is not resolved")
+		
+																												 //@suppress("Field cannot be resolved")
+		const int row_size = ROW_SIZE;
+		r = r * row_size;
+		if (r < numDs && scanlineIdx < numRxScanlines)
+		{
+			sycl::vec<LocationType, row_size> d(0.0);
+			#pragma unroll
+			for (int i = 0; i < row_size; i++) {
+				d[i] = dsDT[r + i];
+			}
+			// TODO should this also depend on the angle?
+			sycl::vec<float, row_size> aDT = d / (2*F);
+			ScanlineRxParameters3D scanline = scanlinesDT[ scanlineIdx ];
+			LocationType scanline_x = scanline.position.x;
+			LocationType  dirX = scanline.direction.x;
+			LocationType  dirY = scanline.direction.y;
+			LocationType  dirZ = scanline.direction.z;
+			LocationType  maxElementDistance = static_cast<LocationType>(scanline.maxElementDistance.x);
+
+			sycl::vec<float, row_size> sInterp(0.0);
+			
+			int highestWeightIndex;
+			if (!interpolateBetweenTransmits)
+			{
+				highestWeightIndex = 0;
+				float highestWeight = scanline.txWeights[ 0 ];
+				for (int k = 1; k < std::extent<decltype(scanline.txWeights)>::value; k++)
+				{
+					if (scanline.txWeights[ k ] > highestWeight)
+					{
+						highestWeight = scanline.txWeights[ k ];
+						highestWeightIndex = k;
+					}
+				}
+			}
+
+			// now iterate over all four txScanlines to interpolate beamformed scanlines from those transmits
+			for (int k = (interpolateBetweenTransmits ? 0 : highestWeightIndex);
+				 (interpolateBetweenTransmits && k < std::extent<decltype(scanline.txWeights)>::value) || (!interpolateBetweenTransmits && k == highestWeightIndex); k++)
+			{
+				if (scanline.txWeights[ k ] > 0.0)
+				{
+					ScanlineRxParameters3D::TransmitParameters txParams = scanline.txParameters[ k ];
+					uint32_t txScanlineIdx = txParams.txScanlineIdx;
+					if (txScanlineIdx >= numTxScanlines)
+					{
+						// ERROR!
+						return;
+					}
+
+					#pragma unroll
+					for (int i = 0; i < row_size; i++) {
+						LocationType invMaxElementDistance = 1.f / sycl::min(aDT[i], maxElementDistance);
+						sInterp[i] = SampleBeamformer::template vec_sampleBeamform2D<interpolateRFlines, RFType, float, LocationType>(txParams, RF, numTransducerElements, 
+						numReceivedChannels, numTimesteps, x_elemsDT, scanline_x, dirX, dirY, dirZ, aDT[i], d[i], invMaxElementDistance , speedOfSound, dt, additionalOffset, 
+						windowFunction, mdataGpu);
+					}
+					
+				}
+			}
+			
+			#pragma unroll
+			for (int i = 0; i < row_size; i++) {
+				s[scanlineIdx + (r + i) * numRxScanlines] = clampCast<ResultType>(sInterp[i]);
+			}
+		}
+	}
+
+
+
 	template <class SampleBeamformer, unsigned int maxWindowFunctionNumel, typename RFType, typename ResultType, typename LocationType>
 	void rxBeamformingDTspaceCuda3D(bool interpolateRFlines, bool interpolateBetweenTransmits, size_t numTransducerElements, vec2s elementLayout, size_t numReceivedChannels, size_t numTimesteps,
 									const RFType* RF, size_t numTxScanlines, size_t numRxScanlines, const ScanlineRxParameters3D* scanlines, size_t numZs, const LocationType* zs,
@@ -395,10 +476,11 @@ namespace supra
 	template <class SampleBeamformer, typename RFType, typename ResultType, typename LocationType>
 	void rxBeamformingDTspaceCuda(bool interpolateRFlines, bool interpolateBetweenTransmits, size_t numTransducerElements, size_t numReceivedChannels, size_t numTimesteps, const RFType* RF,
 								  size_t numTxScanlines, size_t numRxScanlines, const ScanlineRxParameters3D* scanlines, size_t numZs, const LocationType* zs, const LocationType* x_elems,
-								  LocationType speedOfSound, LocationType dt, uint32_t additionalOffset, LocationType F, const WindowFunctionGpu windowFunction, sycl::queue* stream, ResultType* s)
+								  LocationType speedOfSound, LocationType dt, uint32_t additionalOffset, LocationType F, const WindowFunctionGpu windowFunction, sycl::queue* stream, ResultType* s, LocationType *mdataGpu)
 	{
 		sycl::range<3> blockSize(1, 256, 1);
-		sycl::range<3> gridSize(1, static_cast<unsigned int>((numZs + blockSize[ 1 ] - 1) / blockSize[ 1 ]), static_cast<unsigned int>((numRxScanlines + blockSize[ 2 ] - 1) / blockSize[ 2 ]));
+		sycl::range<3> gridSize(1, static_cast<unsigned int>((numZs + blockSize[ 1 ] - 1) / blockSize[ 1 ] / ROW_SIZE), 
+								static_cast<unsigned int>((numRxScanlines + blockSize[ 2 ] - 1) / blockSize[ 2 ]));
 		if (interpolateRFlines)
 		{
 			if (interpolateBetweenTransmits)
@@ -417,8 +499,13 @@ namespace supra
 				
 						sycl::event beam_event = stream->submit([ & ](sycl::handler& cgh) {
 							  cgh.parallel_for(sycl::nd_range<3>(gridSize * blockSize, blockSize), [ = ](sycl::nd_item<3> item_ct1) {
-									rxBeamformingDTSPACEKernel<SampleBeamformer, true, false>(numTransducerElements, numReceivedChannels, numTimesteps, RF, numTxScanlines, numRxScanlines, scanlines,
-																							  numZs, zs, x_elems, speedOfSound, dt, additionalOffset, F, windowFunction, s, item_ct1);
+									/*rxBeamformingDTSPACEKernel<SampleBeamformer, true, false>(numTransducerElements, numReceivedChannels, numTimesteps, RF, numTxScanlines, numRxScanlines, scanlines,
+																							  numZs, zs, x_elems, speedOfSound, dt, additionalOffset, F, windowFunction, s, item_ct1);*/
+							  
+							  		mixed_rxBeamformingDTSPACEKernel<SampleBeamformer, true, false>(numTransducerElements, numReceivedChannels, numTimesteps, RF, numTxScanlines, numRxScanlines,
+																								   scanlines, numZs, zs, x_elems, speedOfSound, dt, additionalOffset, F, &windowFunction, s, item_ct1, mdataGpu);
+									 
+							  
 							  });
 						});
 
@@ -479,6 +566,12 @@ namespace supra
 		{
 			m_windowFunction = std::unique_ptr<WindowFunction>(new WindowFunction(windowType, windowParameter, m_windowFunctionNumEntries));
 		}
+
+		auto mdataGpu = (float*) sycl::malloc_device(m_windowFunctionNumEntries * sizeof(windowType), gRawData->getStream()->get_device(), gRawData->getStream()->get_context());
+		gRawData->getStream()->submit([&] (sycl::handler &h) {
+			h.memcpy(mdataGpu, m_windowFunction->m_data.data(), m_windowFunctionNumEntries * sizeof(WindowType));
+		});
+		gRawData->getStream()->wait();
 
 		auto beamformingFunction3D = &rxBeamformingDTspaceCuda3D<RxSampleBeamformerDelayAndSum, m_windowFunctionNumEntries, ChannelDataType, ImageDataType, LocationType>;
 		auto beamformingFunction2D = &rxBeamformingDTspaceCuda<RxSampleBeamformerDelayAndSum, ChannelDataType, ImageDataType, LocationType>;
@@ -550,7 +643,8 @@ namespace supra
 				static_cast<LocationType>(fNumber),
 				*(m_windowFunction->getGpu()),
 				gRawData->getStream(),
-				pData->get()
+				pData->get(),
+				mdataGpu
 				);
 		}
 

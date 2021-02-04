@@ -17,6 +17,7 @@
 #include "USImageProperties.h"
 #include "WindowFunction.h"
 #include "RxBeamformerCommon.h"
+#include "helper.h"
 
 //TODO ALL ELEMENT/SCANLINE Y positons are actually Z! Change all variable names accordingly
 namespace supra
@@ -180,6 +181,110 @@ namespace supra
 				return 0;
 			}
 		}
+
+		template <bool interpolateRFlines, typename RFType, typename ResultType, typename LocationType>
+		static ResultType vec_sampleBeamform2D(
+			ScanlineRxParameters3D::TransmitParameters txParams, 
+			const RFType* RF, 
+			uint32_t numTransducerElements, 
+			uint32_t numReceivedChannels,
+			uint32_t numTimesteps, 
+			const LocationType* x_elemsDT, 
+			LocationType scanline_x, 
+			LocationType dirX, 
+			LocationType dirY, 
+			LocationType dirZ, 
+			LocationType aDT,
+			LocationType depth, 
+			LocationType invMaxElementDistance, 
+			LocationType speedOfSound, 
+			LocationType dt, 
+			int32_t additionalOffset,
+			const WindowFunctionGpu* __restrict__ windowFunction,
+			const float* mdataGpu)
+		{
+			const int VEC_SIZE = Vec_SIZE;
+			float sampleAcum = 0.0f;	
+			float weightAcum = 0.0f;
+			int numAdds = 0;
+			LocationType initialDelay = txParams.initialDelay;
+			uint32_t txScanlineIdx = txParams.txScanlineIdx;
+
+			for (int32_t elemIdxX = txParams.firstActiveElementIndex.x; elemIdxX < txParams.lastActiveElementIndex.x; elemIdxX += VEC_SIZE)
+			{
+				sycl::vec<int, VEC_SIZE> channelIdx;
+				sycl::vec<LocationType, VEC_SIZE> x_elem;
+
+				#pragma unroll
+				for (int i = 0; i < VEC_SIZE; i +=2) {
+					channelIdx[i] = (elemIdxX + i) % numReceivedChannels;
+					channelIdx[i+1] = (elemIdxX + i + 1) % numReceivedChannels;
+					x_elem[i] = x_elemsDT[elemIdxX + i];
+					x_elem[i + 1] = x_elemsDT[elemIdxX + i + 1];
+				}
+				sycl::vec<float, VEC_SIZE> sample;
+				sycl::vec<int, VEC_SIZE> mask = (sycl::fabs(x_elem - scanline_x) <= aDT);
+				/*sycl spec1.2.1 mentioned: true return  -1, false return 0*/
+				mask *= -1;
+				numAdds += utils<int, VEC_SIZE>::add_vec(mask);
+
+				sycl::vec<float, VEC_SIZE> relativeIndex = (x_elem - scanline_x) * invMaxElementDistance;
+				sycl::vec<float, VEC_SIZE> relativeIndexClamped = sycl::min(sycl::max(relativeIndex, -1.0f), 1.0f);	
+				sycl::vec<float, VEC_SIZE> absoluteIndex = windowFunction->m_scale * (relativeIndexClamped + 1.0f);	
+				sycl::vec<int, VEC_SIZE> absoluteIndex_int = absoluteIndex.convert<int, sycl::rounding_mode::automatic>();
+				sycl::vec<float, VEC_SIZE> weight;
+
+				#pragma unroll
+				for (int i = 0; i < VEC_SIZE; i += 2 ) {
+					weight[i] = mdataGpu[absoluteIndex_int[i]];
+					weight[i + 1] = mdataGpu[absoluteIndex_int[i + 1]];
+				}
+
+				weight *= mask.convert<float, sycl::rounding_mode::automatic>();
+				weightAcum += utils<float, VEC_SIZE>::add_vec(weight);
+
+				sycl::vec<LocationType, VEC_SIZE> delayf = initialDelay +
+					vec_computeDelayDTSPACE_D(dirX, dirY, dirZ, x_elem, scanline_x, depth) + additionalOffset;
+				sycl::vec<float, VEC_SIZE> delay = sycl::floor(delayf);
+				sycl::vec<int, VEC_SIZE> delay_index = delay.convert<int, sycl::rounding_mode::automatic>() + channelIdx*numTimesteps + 
+					txScanlineIdx*numReceivedChannels*numTimesteps;
+				
+				delayf -= delay;
+
+				sycl::vec<float, VEC_SIZE> RF_data;
+				sycl::vec<float, VEC_SIZE> RF_data_one;
+				
+				#pragma unroll
+				for (int j = 0; j < VEC_SIZE; j += 2) {
+					RF_data[j] = (float)RF[delay_index[j]];
+					RF_data[j + 1] = (float)RF[delay_index[j + 1]];
+					RF_data_one[j] = (float)RF[delay_index[j]+1];
+					RF_data_one[j + 1] = (float)RF[delay_index[j + 1]+1];
+				}
+
+				sycl::vec<int, VEC_SIZE> mask1 = (delay < (numTimesteps - 1));
+				mask1 *= -1;
+				sample = weight * ((1.0f - delayf) * RF_data + 
+					delayf  * RF_data_one) * mask1.convert<float, sycl::rounding_mode::automatic>();
+				sampleAcum += utils<float, VEC_SIZE>::add_vec(sample);
+				
+				sycl::vec<int, VEC_SIZE> mask2 = (delay < numTimesteps && delayf == 0.0);
+				mask2 *= -1;
+				sample = weight * RF_data * mask2.convert<float, sycl::rounding_mode::automatic>();
+				sampleAcum += utils<float, VEC_SIZE>::add_vec(sample);
+				
+			}
+
+			if (numAdds > 0)
+			{
+				return sampleAcum / weightAcum * numAdds;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+
 	};
 }
 

@@ -34,6 +34,12 @@ namespace supra
 			(dirY*z)*(dirY*z)) + z;
 	}
 
+	const int Vec_SIZE = 8;
+	sycl::vec<float, Vec_SIZE> vec_computeDelayDTSPACE_D(float dirX, float dirY, float dirZ, sycl::vec<float, Vec_SIZE> x_element, float x, float z)
+	{
+		return sycl::sqrt(((x_element - (x + dirX * z)) * (x_element - (x + dirX * z)) + (dirY * z) * (dirY * z))) + z;
+	}
+
 	template <typename T>
 	inline T computeDelayDTSPACE3D_D(T dirX, T dirY, T dirZ, T x_element, T z_element, T x, T z, T d)
 	{
