@@ -58,53 +58,11 @@ IF (SUPRA_DEVICE_CEPHASONICS)
 	INCLUDE(supraIncludeCephasonics)
 ENDIF()
 
-IF(SUPRA_CUDA)
-	include(supraIncludeCuda)
-	set(CUDA_SEPARABLE_COMPILATION ON)
-	MESSAGE(STATUS "Found Cuda Version " ${CUDA_VERSION_STRING})
-	set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS};-Wno-deprecated-gpu-targets;--use_fast_math;--default-stream=per-thread;-lineinfo")
-	IF(CUDA_VERSION_STRING VERSION_GREATER "8.0")
-		set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS};--Wno-deprecated-declarations")
-		IF(BUILD_SHARED_LIBS AND NOT WIN32)
-			set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS};-Xcompiler=-fPIC")
-		ENDIF()
-	ENDIF()
-	IF(SUPRA_CUDA_PORTABLE)
-		CUDA_SELECT_NVCC_ARCH_FLAGS(ARCH_FLAGS "Common" )
-	ELSE()
-		CUDA_SELECT_NVCC_ARCH_FLAGS(ARCH_FLAGS "Auto")
-	ENDIF()
-	MESSAGE(STATUS "Using nvcc arch flags: ${ARCH_FLAGS}")
-	LIST(APPEND CUDA_NVCC_FLAGS ${ARCH_FLAGS})
-	IF(NOT WIN32)
-		# nvcc cannot handle the flag beeing set twice, so only set it if not present
-		list(FIND CUDA_NVCC_FLAGS "-std=c++11" CUDA_NVCC_STD_FLAGa)
-		list(FIND CUDA_NVCC_FLAGS "--std=c++11" CUDA_NVCC_STD_FLAGb)
-		IF(CUDA_NVCC_STD_FLAGa EQUAL -1 AND CUDA_NVCC_STD_FLAGb EQUAL -1)
-			set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS};--std=c++11")
-		ENDIF()
-	ENDIF()
-	
-	# on win32 cufft is not supported
-	IF(EXISTS ${CUDA_CUFFT_LIBRARIES})
-		LIST(APPEND CUDA_LIBRARIES ${CUDA_CUFFT_LIBRARIES})
-		SET(SUPRA_CUFFT TRUE)
-		SET(SUPRA_Lib_DEFINES ${SUPRA_Lib_DEFINES} HAVE_CUFFT)
-	ENDIF()
-	LIST(APPEND CUDA_LIBRARIES ${CUDA_curand_LIBRARY} ${CUDA_nppif_LIBRARY} ${CUDA_nppist_LIBRARY} ${CUDA_nppial_LIBRARY})
-	
-	SET(SUPRA_Lib_DEFINES ${SUPRA_Lib_DEFINES}
-		HAVE_CUDA)
-	SET(SUPRA_Lib_INCLUDEDIRS ${SUPRA_Lib_INCLUDEDIRS}
-		${CUDA_INCLUDE_DIRS})
-		
-	IF(CUDA_cublas_LIBRARY)
-		SET(SUPRA_CUDA_CUBLAS ON)
-		SET(SUPRA_Lib_DEFINES ${SUPRA_Lib_DEFINES}
-			HAVE_CUDA_CUBLAS)
-		SET(CUDA_LIBRARIES ${CUDA_LIBRARIES} ${CUDA_cublas_LIBRARY})
-	ENDIF()
-ENDIF(SUPRA_CUDA)
+
+
+SET(SUPRA_Lib_DEFINES ${SUPRA_Lib_DEFINES} HAVE_CUDA)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-c++11-narrowing -O2 -g")
+
 
 #find IGTL Interface
 IF(SUPRA_DEVICE_IGTL_OUTPUT OR SUPRA_DEVICE_TRACKING_IGTL)
@@ -129,7 +87,7 @@ ENDIF(SUPRA_PROFILING)
 ############################################
 #lib base source files
 SET(SUPRA_Lib_SOURCE
-	ContainerFactory.cpp
+	ContainerFactory.cpp.dp.cpp
 	SupraManager.cpp
 	RecordObject.cpp
 	SyncRecordObject.cpp
@@ -149,7 +107,7 @@ SET(SUPRA_Lib_SOURCE
 	utilities/tinyxml2/tinyxml2.cpp
 	utilities/jsoncpp/jsoncpp.cpp
 	FrequencyLimiterNode.cpp
-	StreamSyncNode.cpp
+	#StreamSyncNode.cpp
 	AutoQuitNode.cpp
 	ExampleNodes/ImageProcessingCpuNode.cpp)
 SET(SUPRA_Lib_HEADERS
@@ -172,7 +130,7 @@ SET(SUPRA_Lib_HEADERS
 	TemporalOffsetNode.h
 	InterfaceFactory.h
 	utilities/utility.h
-	utilities/cudaUtility.h
+	utilities/syclUtility.h
 	utilities/Buffer.h
 	utilities/Logging.h
 	utilities/CallFrequency.h
@@ -190,41 +148,9 @@ SET(SUPRA_Lib_HEADERS
 	
 IF(SUPRA_CUDA)
 	SET(SUPRA_Lib_SOURCE
-		${SUPRA_Lib_SOURCE}
-		ExampleNodes/ImageProcessingCudaNode.cpp
-		ExampleNodes/ImageProcessingCuda.cu
-		ExampleNodes/ImageProcessingBufferCudaNode.cpp
-		ExampleNodes/ImageProcessingBufferCuda.cu
-		Processing/TimeGainCompensationNode.cpp
-		Processing/TimeGainCompensation.cu
-		Processing/FilterSradCuda.cu
-		Processing/FilterSradCudaNode.cpp
-		Processing/DarkFilterThresholdingCudaNode.cpp
-		Processing/DarkFilterThresholdingCuda.cu
-		Processing/BilateralFilterCudaNode.cpp
-		Processing/BilateralFilterCuda.cu
-		Processing/MedianFilterCudaNode.cpp
-		Processing/MedianFilterCuda.cu
-		NoiseNode.cpp
-		NoiseCuda.cu)
+		${SUPRA_Lib_SOURCE} )
 	SET(SUPRA_Lib_HEADERS
-		${SUPRA_Lib_HEADERS}
-		ExampleNodes/ImageProcessingCudaNode.h
-		ExampleNodes/ImageProcessingCuda.h
-		ExampleNodes/ImageProcessingBufferCudaNode.h
-		ExampleNodes/ImageProcessingBufferCuda.h
-		Processing/TimeGainCompensationNode.h
-		Processing/TimeGainCompensation.h
-		Processing/FilterSradCudaNode.h
-		Processing/FilterSradCuda.h
-		Processing/DarkFilterThresholdingCudaNode.h
-		Processing/DarkFilterThresholdingCuda.h
-		Processing/BilateralFilterCudaNode.h
-		Processing/BilateralFilterCuda.h
-		Processing/MedianFilterCudaNode.h
-		Processing/MedianFilterCuda.h
-		NoiseNode.h
-		NoiseCuda.h)
+		${SUPRA_Lib_HEADERS})
 ENDIF(SUPRA_CUDA)
 	
 SET(SUPRA_Lib_INCLUDEDIRS
@@ -260,23 +186,17 @@ IF(SUPRA_BEAMFORMER)
 		Beamformer/WindowFunction.cpp
 		Beamformer/USTransducer.cpp
 		Beamformer/BeamformingNode.cpp
-		Beamformer/IQDemodulatorNode.cpp
 		Beamformer/HilbertFirEnvelopeNode.cpp
 		Beamformer/LogCompressorNode.cpp
 		Beamformer/ScanConverterNode.cpp
-		Beamformer/TemporalFilterNode.cpp
-		Beamformer/RawDelayNode.cpp
 		Beamformer/RxEventLimiterNode.cpp
 		InputOutput/UltrasoundInterfaceRawDataMock.cpp
 		InputOutput/UltrasoundInterfaceBeamformedMock.cpp)
 	SET(SUPRA_Lib_CUDASOURCE ${SUPRA_Lib_CUDASOURCE}
-		Beamformer/RxBeamformerCuda.cu
-		Beamformer/IQDemodulator.cu
-		Beamformer/HilbertFirEnvelope.cu
-		Beamformer/LogCompressor.cu
-		Beamformer/ScanConverter.cu
-		Beamformer/TemporalFilter.cu
-		Beamformer/RawDelay.cu)
+		Beamformer/RxBeamformerCuda.dp.cpp
+		Beamformer/HilbertFirEnvelope.dp.cpp
+		Beamformer/LogCompressor.dp.cpp
+		Beamformer/ScanConverter.dp.cpp)
 	SET(SUPRA_Lib_HEADERS ${SUPRA_Lib_HEADERS}
 		Beamformer/Sequencer.h
 		Beamformer/Beamformer.h
@@ -305,55 +225,15 @@ IF(SUPRA_BEAMFORMER)
 		Beamformer/RxEventLimiterNode.h
 		InputOutput/UltrasoundInterfaceRawDataMock.h
 		InputOutput/UltrasoundInterfaceBeamformedMock.h)
-	IF(SUPRA_CUFFT)
-		SET(SUPRA_Lib_SOURCE ${SUPRA_Lib_SOURCE}
-			Beamformer/HilbertEnvelopeNode.cpp)
-		SET(SUPRA_Lib_CUDASOURCE ${SUPRA_Lib_CUDASOURCE}
-			Beamformer/HilbertEnvelope.cu)
-		SET(SUPRA_Lib_HEADERS ${SUPRA_Lib_HEADERS}
-			Beamformer/HilbertEnvelope.h
-			Beamformer/HilbertEnvelopeNode.h)
-	ENDIF(SUPRA_CUFFT)
+	
 		
 	SET(SUPRA_Lib_DEFINES ${SUPRA_Lib_DEFINES}
 		HAVE_BEAMFORMER)
-	SET(SUPRA_Lib_LIBRARIES ${SUPRA_Lib_LIBRARIES}
-		${CUDA_LIBRARIES})
+	SET(SUPRA_Lib_LIBRARIES ${SUPRA_Lib_LIBRARIES})
 	
-	IF(SUPRA_CUDA_CUBLAS)
-		SET(SUPRA_Lib_HEADERS ${SUPRA_Lib_HEADERS}
-			Beamformer/BeamformingMVNode.h
-			Beamformer/BeamformingMVpcgNode.h
-			Beamformer/RxBeamformerMV.h
-			Beamformer/RxBeamformerMVpcg.h)
-		SET(SUPRA_Lib_SOURCE ${SUPRA_Lib_SOURCE}
-			Beamformer/BeamformingMVNode.cpp
-			Beamformer/BeamformingMVpcgNode.cpp)
-		SET(SUPRA_Lib_CUDASOURCE ${SUPRA_Lib_CUDASOURCE}
-			Beamformer/RxBeamformerMV.cu
-			Beamformer/RxBeamformerMVpcg.cu)
-		SET(SUPRA_Lib_DEFINES ${SUPRA_Lib_DEFINES}
-			HAVE_BEAMFORMER_MINIMUM_VARIANCE)
-	ELSE()
-		MESSAGE(STATUS "CUBLAS not found, NOT adding minimum variance beamformer")
-	ENDIF()
 ENDIF(SUPRA_BEAMFORMER)
 
-IF(SUPRA_TORCH)
-	SET(SUPRA_Lib_SOURCE ${SUPRA_Lib_SOURCE}
-		Processing/TorchInference.cpp
-		Processing/TorchNode.cpp)
-	SET(SUPRA_Lib_HEADERS ${SUPRA_Lib_HEADERS}
-		Processing/TorchInference.h
-		Processing/TorchNode.h)
 
-	SET(SUPRA_Lib_DEFINES ${SUPRA_Lib_DEFINES}
-		HAVE_TORCH)
-	SET(SUPRA_Lib_INCLUDEDIRS ${SUPRA_Lib_INCLUDEDIRS}
-		${TORCH_INCLUDE_DIRS})
-	SET(SUPRA_Lib_LIBRARIES ${SUPRA_Lib_LIBRARIES}
-		${TORCH_LIBRARIES})
-ENDIF(SUPRA_TORCH)
 
 IF(SUPRA_DEVICE_ULTRASOUND_SIM)
 	SET(SUPRA_Lib_SOURCE ${SUPRA_Lib_SOURCE}
@@ -486,19 +366,14 @@ SOURCE_GROUP(inc FILES ${SUPRA_Lib_HEADERS})
 INCLUDE_DIRECTORIES(SUPRA_Lib
 	${SUPRA_Lib_INCLUDEDIRS})
 
-IF(CUDA_FOUND)
-CUDA_ADD_LIBRARY(SUPRA_Lib
-	${SUPRA_Lib_SOURCE}
-	${SUPRA_Lib_HEADERS}
-	${SUPRA_Lib_CUDASOURCE}
-)
-ELSE ()
+
 ADD_LIBRARY(SUPRA_Lib
 	${SUPRA_Lib_SOURCE}
 	${SUPRA_Lib_HEADERS}
 	${SUPRA_Lib_CUDASOURCE}
 )
-ENDIF(CUDA_FOUND)
+
+
 TARGET_INCLUDE_DIRECTORIES(SUPRA_Lib
 	PUBLIC ${SUPRA_Lib_INCLUDEDIRS}
 )
@@ -511,7 +386,7 @@ ENDIF()
 
 TARGET_COMPILE_DEFINITIONS(SUPRA_Lib 
 	PRIVATE ${SUPRA_Lib_DEFINES})
-set_property(TARGET SUPRA_Lib PROPERTY CXX_STANDARD 11)
+set_property(TARGET SUPRA_Lib PROPERTY CXX_STANDARD 17)
 set_property(TARGET SUPRA_Lib PROPERTY CXX_STANDARD_REQUIRED ON)
 
 SET(SUPRA_Lib_INCLUDEDIRS ${SUPRA_Lib_INCLUDEDIRS} PARENT_SCOPE)

@@ -9,24 +9,18 @@ SET(PATCH_VERSION "0")
 MESSAGE( STATUS "CMAKE_GENERATOR: ${CMAKE_GENERATOR}")
 MESSAGE( STATUS "CMAKE_CL_64: ${CMAKE_CL_64}")
 
-SET(CMAKE_CXX_STANDARD 11)
+
+SET(CMAKE_CXX_STANDARD 17)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 SET(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-FIND_PACKAGE( OpenMP REQUIRED)
-if(OPENMP_FOUND)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-endif()
-IF(WIN32)
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-ENDIF(WIN32)
+
+
 
 # options for modules to include
 OPTION(SUPRA_PROFILING             "Add profiling message to logfile"  OFF)
 OPTION(SUPRA_WARNINGS_AS_ERRORS    "Treat all build warnings as errors (NOT on windows)" OFF)
-OPTION(SUPRA_DOWNLOAD_SAMPLEDATA   "Whether sample data should be downloaded" ON)
+OPTION(SUPRA_DOWNLOAD_SAMPLEDATA   "Whether sample data should be downloaded" OFF)
 OPTION(SUPRA_CUDA                  "Use cuda in SUPRA"                 ON)
 OPTION(SUPRA_CUDA_PORTABLE         "Build for all supported CUDA architectures" OFF)
 OPTION(SUPRA_TORCH                 "Use pytorch in SUPRA"              OFF)

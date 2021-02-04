@@ -56,11 +56,11 @@ namespace supra
 
 	/// Verifies a cuda call returned "cudaSuccess". Prints error message otherwise.
 	/// returns true if no error occured, false otherwise.
-	#define cudaSafeCall(_err_) cudaSafeCall2(_err_, __FILE__, __LINE__, FUNCNAME_PORTABLE)
+	#define syclSafeCall(_err_) syclSafeCall2(_err_, __FILE__, __LINE__, FUNCNAME_PORTABLE)
 
 	/// Verifies a cuda call returned "cudaSuccess". Prints error message otherwise.
 	/// returns true if no error occured, false otherwise. Calles by cudaSafeCall
-	inline bool cudaSafeCall2(int err, const char* file, int line, const char* func) {
+	inline bool syclSafeCall2(int err, const char* file, int line, const char* func) {
 
 		//#ifdef CUDA_ERROR_CHECK
 		/*
@@ -74,7 +74,7 @@ namespace supra
 			/*
 			DPCT1009:2: SYCL uses exceptions to report errors and does not use the error codes. The original code was commented out and a warning string was inserted. You need to rewrite this code.
 			*/
-			sprintf(buf, "CUDA Error (in \"%s\", Line: %d, %s): %d - %s\n", file, line, func, err, "cudaGetErrorString not supported" /*cudaGetErrorString(err)*/);
+			sprintf(buf, "SYCL Error (in \"%s\", Line: %d, %s): %d - %s\n", file, line, func, err, "cudaGetErrorString not supported" /*cudaGetErrorString(err)*/);
 			printf("%s", buf);
 			logging::log_error(buf);
 			return false;

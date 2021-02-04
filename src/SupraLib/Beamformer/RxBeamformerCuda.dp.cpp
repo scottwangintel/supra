@@ -17,7 +17,8 @@
 #include "RxSampleBeamformerDelayAndStdDev.h"
 #include "RxSampleBeamformerTestSignal.h"
 #include "RxBeamformerCommon.h"
-#include "utilities/cudaUtility.h"
+#include "utilities/syclUtility.h"
+#include <utilities/utility.h>
 
 //TODO ALL ELEMENT/SCANLINE Y positons are actually Z! Change all variable names accordingly
 namespace supra
@@ -25,8 +26,7 @@ namespace supra
 	RxBeamformerCuda::RxBeamformerCuda(const RxBeamformerParameters & parameters)
 		: m_windowFunction(nullptr)
 	{
-  dpct::device_ext& dev_ct1 = dpct::get_current_device();
-  sycl::queue&	  q_ct1 = dev_ct1.default_queue();
+  
 		m_lastSeenDt = 0;
 		m_numRxScanlines = parameters.getNumRxScanlines();
 		m_rxScanlineLayout = parameters.getRxScanlineLayout();
@@ -35,6 +35,9 @@ namespace supra
 		m_speedOfSoundMMperS = parameters.getSpeedOfSoundMMperS();
 		m_rxNumDepths = parameters.getRxNumDepths();
 
+		dpct::device_ext& dev_ct1 = dpct::get_current_device();
+  		sycl::queue&	  q_ct1 = dev_ct1.default_queue();
+		
 		// create and fill new buffers
 		m_pRxDepths = std::unique_ptr<Container<LocationType>>(new Container<LocationType>(LocationGpu, &q_ct1, parameters.getRxDepths()));
 
@@ -315,9 +318,7 @@ namespace supra
 		{
 			if (interpolateBetweenTransmits)
 			{
-				/*
-				DPCT1049:32: The workgroup size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the workgroup size if needed.
-				*/
+				
 						stream->submit([ & ](sycl::handler& cgh) {
 							  sycl::accessor<LocationType, 1, sycl::access::mode::read_write, sycl::access::target::local>				  x_elemsDTsh_acc_ct1(sycl::range<1>(1024), cgh);
 							  sycl::accessor<LocationType, 1, sycl::access::mode::read_write, sycl::access::target::local>				  z_elemsDTsh_acc_ct1(sycl::range<1>(1024), cgh);
@@ -334,9 +335,7 @@ namespace supra
 						});
 			}
 			else {
-				/*
-				DPCT1049:33: The workgroup size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the workgroup size if needed.
-				*/
+				
 						stream->submit([ & ](sycl::handler& cgh) {
 							  sycl::accessor<LocationType, 1, sycl::access::mode::read_write, sycl::access::target::local>				  x_elemsDTsh_acc_ct1(sycl::range<1>(1024), cgh);
 							  sycl::accessor<LocationType, 1, sycl::access::mode::read_write, sycl::access::target::local>				  z_elemsDTsh_acc_ct1(sycl::range<1>(1024), cgh);
@@ -356,9 +355,7 @@ namespace supra
 		else {
 			if (interpolateBetweenTransmits)
 			{
-				/*
-				DPCT1049:34: The workgroup size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the workgroup size if needed.
-				*/
+				
 						stream->submit([ & ](sycl::handler& cgh) {
 							  sycl::accessor<LocationType, 1, sycl::access::mode::read_write, sycl::access::target::local>				  x_elemsDTsh_acc_ct1(sycl::range<1>(1024), cgh);
 							  sycl::accessor<LocationType, 1, sycl::access::mode::read_write, sycl::access::target::local>				  z_elemsDTsh_acc_ct1(sycl::range<1>(1024), cgh);
@@ -375,9 +372,7 @@ namespace supra
 						});
 			}
 			else {
-				/*
-				DPCT1049:35: The workgroup size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the workgroup size if needed.
-				*/
+				
 						stream->submit([ & ](sycl::handler& cgh) {
 							  sycl::accessor<LocationType, 1, sycl::access::mode::read_write, sycl::access::target::local>				  x_elemsDTsh_acc_ct1(sycl::range<1>(1024), cgh);
 							  sycl::accessor<LocationType, 1, sycl::access::mode::read_write, sycl::access::target::local>				  z_elemsDTsh_acc_ct1(sycl::range<1>(1024), cgh);
@@ -394,10 +389,7 @@ namespace supra
 						});
 			}
 		}
-		/*
-		DPCT1010:36: SYCL uses exceptions to report errors and does not use the error codes. The call was replaced with 0. You need to rewrite this code.
-		*/
-		cudaSafeCall(0);
+		
 	}
 
 	template <class SampleBeamformer, typename RFType, typename ResultType, typename LocationType>
@@ -411,9 +403,7 @@ namespace supra
 		{
 			if (interpolateBetweenTransmits)
 			{
-				/*
-				DPCT1049:37: The workgroup size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the workgroup size if needed.
-				*/
+				
 						stream->submit([ & ](sycl::handler& cgh) {
 							  cgh.parallel_for(sycl::nd_range<3>(gridSize * blockSize, blockSize), [ = ](sycl::nd_item<3> item_ct1) {
 									rxBeamformingDTSPACEKernel<SampleBeamformer, true, true>(numTransducerElements, numReceivedChannels, numTimesteps, RF, numTxScanlines, numRxScanlines, scanlines,
@@ -422,23 +412,26 @@ namespace supra
 						});
 			}
 			else {
-				/*
-				DPCT1049:38: The workgroup size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the workgroup size if needed.
-				*/
-						stream->submit([ & ](sycl::handler& cgh) {
+
+						static long beam_call_count = 0;
+				
+						sycl::event beam_event = stream->submit([ & ](sycl::handler& cgh) {
 							  cgh.parallel_for(sycl::nd_range<3>(gridSize * blockSize, blockSize), [ = ](sycl::nd_item<3> item_ct1) {
 									rxBeamformingDTSPACEKernel<SampleBeamformer, true, false>(numTransducerElements, numReceivedChannels, numTimesteps, RF, numTxScanlines, numRxScanlines, scanlines,
 																							  numZs, zs, x_elems, speedOfSound, dt, additionalOffset, F, windowFunction, s, item_ct1);
 							  });
 						});
+
+						beam_event.wait();
+						beam_call_count++;
+						std::string msg = "Beamforming run " + std::to_string(beam_call_count) + " times: ";
+						Report_time(msg, beam_event);
 			}
 		}
 		else {
 			if (interpolateBetweenTransmits)
 			{
-				/*
-				DPCT1049:39: The workgroup size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the workgroup size if needed.
-				*/
+				
 						stream->submit([ & ](sycl::handler& cgh) {
 							  cgh.parallel_for(sycl::nd_range<3>(gridSize * blockSize, blockSize), [ = ](sycl::nd_item<3> item_ct1) {
 									rxBeamformingDTSPACEKernel<SampleBeamformer, false, true>(numTransducerElements, numReceivedChannels, numTimesteps, RF, numTxScanlines, numRxScanlines, scanlines,
@@ -447,9 +440,7 @@ namespace supra
 						});
 			}
 			else {
-				/*
-				DPCT1049:40: The workgroup size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the workgroup size if needed.
-				*/
+				
 						stream->submit([ & ](sycl::handler& cgh) {
 							  cgh.parallel_for(sycl::nd_range<3>(gridSize * blockSize, blockSize), [ = ](sycl::nd_item<3> item_ct1) {
 									rxBeamformingDTSPACEKernel<SampleBeamformer, false, false>(numTransducerElements, numReceivedChannels, numTimesteps, RF, numTxScanlines, numRxScanlines, scanlines,
@@ -458,10 +449,7 @@ namespace supra
 						});
 			}
 		}
-		/*
-		DPCT1010:41: SYCL uses exceptions to report errors and does not use the error codes. The call was replaced with 0. You need to rewrite this code.
-		*/
-		cudaSafeCall(0);
+		
 	}
 
 	template <typename ChannelDataType, typename ImageDataType>
@@ -494,7 +482,9 @@ namespace supra
 
 		auto beamformingFunction3D = &rxBeamformingDTspaceCuda3D<RxSampleBeamformerDelayAndSum, m_windowFunctionNumEntries, ChannelDataType, ImageDataType, LocationType>;
 		auto beamformingFunction2D = &rxBeamformingDTspaceCuda<RxSampleBeamformerDelayAndSum, ChannelDataType, ImageDataType, LocationType>;
-		switch (sampleBeamformer)
+		
+		// We don't use DelayAndStdDev and TestSignal algorthm, so below code are commented.
+		/*switch (sampleBeamformer)
 		{
 		case DelayAndSum:
 			beamformingFunction3D = &rxBeamformingDTspaceCuda3D<RxSampleBeamformerDelayAndSum, m_windowFunctionNumEntries, ChannelDataType, ImageDataType, LocationType>;
@@ -512,7 +502,7 @@ namespace supra
 		default:
 			beamformingFunction3D = &rxBeamformingDTspaceCuda3D<RxSampleBeamformerDelayAndSum, m_windowFunctionNumEntries, ChannelDataType, ImageDataType, LocationType>;
 			beamformingFunction2D = &rxBeamformingDTspaceCuda<RxSampleBeamformerDelayAndSum, ChannelDataType, ImageDataType, LocationType>;
-		}
+		}*/
 
 
 		convertToDtSpace(dt, speedOfSoundMMperS, rawData->getNumElements());

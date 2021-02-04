@@ -33,6 +33,18 @@ namespace std
 	}
 }
 
+static void Report_time(const std::string &msg, sycl::event e)
+{
+    cl::sycl::cl_ulong time_start = 
+        e.get_profiling_info<sycl::info::event_profiling::command_start>();
+
+    cl::sycl::cl_ulong time_end = 
+        e.get_profiling_info<sycl::info::event_profiling::command_end>();
+
+    double elapsed = (time_end - time_start) / 1e6;
+    std::cout << msg << elapsed << " milliseconds\n"; 
+}
+
 namespace supra
 {
 	using std::to_string;

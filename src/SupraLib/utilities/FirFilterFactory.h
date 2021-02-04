@@ -89,7 +89,8 @@ namespace supra
 			ElementType omegaBandwidth = static_cast<ElementType>(2 * M_PI* bandwidth / samplingFrequency);
 			int halfWidth = ((int)length - 1) / 2;
 
-			auto filter = std::make_shared<Container<ElementType>>(LocationHost, &dpct::get_default_queue(), length);
+			sycl::queue &default_queue=dpct::get_default_queue();
+			auto filter = std::make_shared<Container<ElementType>>(LocationHost, &default_queue, length);
 
 			//determine the filter function
 			std::function<ElementType(int)> filterFunction = [&halfWidth](int n) -> ElementType {
@@ -184,7 +185,7 @@ namespace supra
 				break;
 			case FilterWindowKaiser:
 				windowFunction = [maxN, beta](int n) -> ElementType {
-					double argument = beta * sqrt(1.0 - (2 * (( ElementType )n - maxN / 2) / maxN) * (2 * (( ElementType )n - maxN / 2) / maxN));
+					double argument = beta * sycl::sqrt(1.0 - (2 * (( ElementType )n - maxN / 2) / maxN) * (2 * (( ElementType )n - maxN / 2) / maxN));
 					return static_cast<ElementType>(bessel0_1stKind(argument) / bessel0_1stKind(beta)); };
 				break;
 			case FilterWindowRectangular:
@@ -211,7 +212,7 @@ namespace supra
 				gainR += filter->get()[k] * cos(omega * (ElementType)k);
 				gainI += filter->get()[k] * sin(omega * (ElementType)k);
 			}
-			ElementType gain = sqrt(gainR*gainR + gainI*gainI);
+			ElementType gain = sycl::sqrt(gainR*gainR + gainI*gainI);
 			for (int k = 0; k < filter->size(); k++)
 			{
 				filter->get()[k] /= gain;

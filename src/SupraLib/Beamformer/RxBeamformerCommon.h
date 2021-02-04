@@ -29,7 +29,7 @@ namespace supra
 	template <typename T>
 	inline T computeDelayDTSPACE_D(T dirX, T dirY, T dirZ, T x_element, T x, T z)
 	{
-		return sqrt((x_element - (x + dirX*z))*
+		return sycl::sqrt((x_element - (x + dirX*z))*
 			(x_element - (x + dirX*z)) +
 			(dirY*z)*(dirY*z)) + z;
 	}
@@ -37,7 +37,7 @@ namespace supra
 	template <typename T>
 	inline T computeDelayDTSPACE3D_D(T dirX, T dirY, T dirZ, T x_element, T z_element, T x, T z, T d)
 	{
-		return sqrt(
+		return sycl::sqrt(
 			squ(x_element - (x + dirX*d)) +
 			squ(z_element - (z + dirZ*d)) +
 			squ(dirY*d)) + d;

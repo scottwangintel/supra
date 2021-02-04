@@ -50,10 +50,10 @@ namespace supra
 		return TypeUint64;
 	}
 #ifdef HAVE_CUDA
-	template <>
+	/*template <>
 	DataType DataTypeGet<__half>() {
 		return TypeHalf;
-	}
+	}*/
 #endif
 	template <>
 	DataType DataTypeGet<float>() {

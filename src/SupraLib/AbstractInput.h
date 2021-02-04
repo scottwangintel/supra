@@ -18,7 +18,9 @@
 #include <tuple>
 #include <array>
 
+#undef emit
 #include <tbb/flow_graph.h>
+#define emit 
 
 #include "AbstractNode.h"
 #include "utilities/SingleThreadTimer.h"

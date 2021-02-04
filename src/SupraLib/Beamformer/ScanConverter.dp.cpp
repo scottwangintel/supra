@@ -28,7 +28,8 @@
 #include <dpct/dpct.hpp>
 #include "ScanConverter.h"
 #include <cassert>
-#include <utilities/cudaUtility.h>
+#include <utilities/syclUtility.h>
+#include <utilities/utility.h>
 #include <utilities/Logging.h>
 
 #include <dpct/dpl_utils.hpp>
@@ -90,7 +91,7 @@ namespace supra
 				pointInsideTetrahedron(s2, s3, e1, e4, voxelPos))
 			{
 
-				thrust::pair<vec3T<Tf>, bool> params = mapToParameters3D<Tf, Ti>(
+				std::pair<vec3T<Tf>, bool> params = mapToParameters3D<Tf, Ti>(
 					scanline1Pos,
 					scanline2Pos,
 					scanline3Pos,
@@ -185,7 +186,7 @@ namespace supra
 		}
 
 		template <typename Tf, typename Ti>
-		static thrust::pair<vec3T<Tf>, bool> mapToParameters3D(
+		static std::pair<vec3T<Tf>, bool> mapToParameters3D(
 			const vec3T<Tf> & a,
 			const vec3T<Tf> & ax,
 			const vec3T<Tf> & ay,
@@ -215,7 +216,7 @@ namespace supra
 
 			if (dot(lowConnX, highConnX) > 0 || dot(lowConnY, highConnY) > 0)
 			{
-				return thrust::pair<vec3T<Tf>, bool>(vec3T<Tf>{ 0, 0, 0 }, false);
+				return std::pair<vec3T<Tf>, bool>(vec3T<Tf>{ 0, 0, 0 }, false);
 			}
 
 			vec2T<Tf> dist = { 1e10, 1e10 };
@@ -273,7 +274,7 @@ namespace supra
 			vec3T<Tf> lineBase = (1 - t.y)*planeBaseX1 + t.y*planeBaseX2;
 			Tf d = norm(x - lineBase);
 
-			return thrust::pair<vec3T<Tf>, bool>(vec3T<Tf>{ t.x, t.y, d }, true);
+			return std::pair<vec3T<Tf>, bool>(vec3T<Tf>{ t.x, t.y, d }, true);
 		}
 	};
 
@@ -455,13 +456,13 @@ namespace supra
 
 		if (m_is2D)
 		{
-			sycl::range<3> blockSize(1, 256, 1);
+			sycl::range<3> blockSize(1, 8, 16);
 			sycl::range<3> gridSize(1, static_cast<unsigned int>((m_imageSize.y + blockSize[ 1 ] - 1) / blockSize[ 1 ]),
 									static_cast<unsigned int>((m_imageSize.x + blockSize[ 2 ] - 1) / blockSize[ 2 ]));
-			/*
-			DPCT1049:22: The workgroup size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the workgroup size if needed.
-			*/
-				  pScanlineData->getStream()->submit([ & ](sycl::handler& cgh) {
+				
+				  static long scan_call_count = 0;
+				  
+				  sycl::event scan_event = pScanlineData->getStream()->submit([ & ](sycl::handler& cgh) {
 						auto m_imageSize_x_ct2 = ( uint32_t )m_imageSize.x;
 						auto m_imageSize_y_ct3 = ( uint32_t )m_imageSize.y;
 						auto m_mask_get_ct4 = m_mask->get();
@@ -476,10 +477,13 @@ namespace supra
 											pScanlineData_get_ct8, pConv_get_ct9, item_ct1);
 						});
 				  });
-			/*
-			DPCT1010:20: SYCL uses exceptions to report errors and does not use the error codes. The call was replaced with 0. You need to rewrite this code.
-			*/
-			cudaSafeCall(0);
+				 
+				  scan_event.wait();
+				  scan_call_count++;
+				  std::string msg = "Scan run " + std::to_string(scan_call_count) + " times: ";
+				  Report_time(msg, scan_event);
+
+			
 		}
 		else
 		{
@@ -506,10 +510,7 @@ namespace supra
 											m_sampleIdx_get_ct7, m_weightX_get_ct8, m_weightY_get_ct9, m_weightZ_get_ct10, pScanlineData_get_ct11, pConv_get_ct12, item_ct1);
 						});
 				  });
-			/*
-			DPCT1010:21: SYCL uses exceptions to report errors and does not use the error codes. The call was replaced with 0. You need to rewrite this code.
-			*/
-			cudaSafeCall(0);
+			
 		}
 		return pConv;
 	}
@@ -535,8 +536,8 @@ namespace supra
 
 	void ScanConverter::updateInternals(const std::shared_ptr<const USImageProperties>& inImageProps)
 	{
-  dpct::device_ext& dev_ct1 = dpct::get_current_device();
-  sycl::queue&	  q_ct1 = dev_ct1.default_queue();
+  		dpct::device_ext& dev_ct1 = dpct::get_current_device();
+  		sycl::queue&	  q_ct1 = dev_ct1.default_queue();
 		logging::log_log("Scanconverter: Updating scanconversion internals");
 
 		//Check the scanline configuration for validity
@@ -675,17 +676,19 @@ namespace supra
 			m_weightX = make_shared<Container<WeightType> >(ContainerLocation::LocationHost, numelBuffers);
 			m_weightY = make_shared<Container<WeightType> >(ContainerLocation::LocationHost, numelBuffers);
 			m_weightZ = make_shared<Container<WeightType> >(ContainerLocation::LocationHost, numelBuffers);*/
-			m_mask = make_shared<Container<uint8_t>>(ContainerLocation::LocationGpu, &q_ct1, numelBuffers);
-			m_sampleIdx = make_shared<Container<IndexType>>(ContainerLocation::LocationGpu, &q_ct1, numelBuffers);
-			m_weightX = make_shared<Container<WeightType>>(ContainerLocation::LocationGpu, &q_ct1, numelBuffers);
-			m_weightY = make_shared<Container<WeightType>>(ContainerLocation::LocationGpu, &q_ct1, numelBuffers);
-			m_weightZ = make_shared<Container<WeightType>>(ContainerLocation::LocationGpu, &q_ct1, numelBuffers);
+			sycl::queue &default_queue=dpct::get_default_queue();
+			m_mask = make_shared<Container<uint8_t>>(ContainerLocation::LocationGpu, &default_queue, numelBuffers);
+			m_sampleIdx = make_shared<Container<IndexType>>(ContainerLocation::LocationGpu, &default_queue, numelBuffers);
+			m_weightX = make_shared<Container<WeightType>>(ContainerLocation::LocationGpu, &default_queue, numelBuffers);
+			m_weightY = make_shared<Container<WeightType>>(ContainerLocation::LocationGpu, &default_queue, numelBuffers);
+			m_weightZ = make_shared<Container<WeightType>>(ContainerLocation::LocationGpu, &default_queue, numelBuffers);
 
 			//create image mask
-			/*
-			DPCT1003:24: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-			*/
-			cudaSafeCall((q_ct1.memset(m_mask->get(), 0, m_mask->size() * sizeof(uint8_t)), 0));
+			
+			//create image mask
+			m_mask->getStream()->submit([&](sycl::handler &h){
+				h.memset(m_mask->get(), 0, m_mask->size()*sizeof(uint8_t));
+			});
 
 			if (m_is2D)
 			{
@@ -839,17 +842,11 @@ namespace supra
 													static_cast<Tf>(resolution), m_mask_get_ct27, m_sampleIdx_get_ct28, m_weightX_get_ct29, m_weightY_get_ct30, m_weightZ_get_ct31, item_ct1);
 										  });
 									});
-						/*
-						DPCT1010:26: SYCL uses exceptions to report errors and does not use the error codes. The call was replaced with 0. You need to rewrite this code.
-						*/
-						cudaSafeCall(0);
+						
 					}
 				}
 			}
-			/*
-			DPCT1003:27: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-			*/
-			cudaSafeCall((q_ct1.wait(), 0));
+			
 		}
 		else
 		{

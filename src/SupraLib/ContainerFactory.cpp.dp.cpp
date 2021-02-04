@@ -65,8 +65,8 @@ namespace supra
 			size_t memoryTotal;
 			if (location == LocationGpu || location == LocationBoth)
 			{
-				cudaSafeCall(cudaMemGetInfo(&memoryFree, &memoryTotal));
-				memoryFree = static_cast<size_t>(std::max(static_cast<double>(memoryFree) - (static_cast<double>(memoryTotal) * 0.02), 0.0));
+				// SYCL doesn't provide get_free_mem_info api, so we pass it.
+				memoryFree = numBytes;
 			}
 			else
 #endif
@@ -114,13 +114,10 @@ namespace supra
 		sm_streams.resize(sm_numberStreams);
 		for (size_t k = 0; k < sm_numberStreams; k++)
 		{
-			/*
-			DPCT1003:32: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-			*/
-			/*
-			DPCT1025:33: The SYCL queue is created ignoring the flag/priority options.
-			*/
-			cudaSafeCall(((sm_streams[ k ]) = dpct::get_current_device().create_queue(), 0));
+			
+			auto property_list = cl::sycl::property_list{cl::sycl::property::queue::enable_profiling()};
+			sm_streams[k] =  new sycl::queue(dpct::get_default_queue().get_context(), dpct::get_default_queue().get_device(), property_list);
+			std::cout << endl << "Selected device: " << sm_streams[k]->get_device().get_info<sycl::info::device::name>() << endl;
 		}
 #else
 		sm_streams.resize(sm_numberStreams, 0);
@@ -129,33 +126,29 @@ namespace supra
 
 	uint8_t * ContainerFactory::allocateMemory(size_t numBytes, ContainerLocation location)
 	{
-  dpct::device_ext& dev_ct1 = dpct::get_current_device();
-  sycl::queue&	  q_ct1 = dev_ct1.default_queue();
+  		dpct::device_ext& dev_ct1 = dpct::get_current_device();
+  		sycl::queue&	  q_ct1 = dev_ct1.default_queue();
+		
+		
 		uint8_t* buffer = nullptr;
 		switch (location)
 		{
 		case LocationGpu:
 #ifdef HAVE_CUDA
-			/*
-			DPCT1003:34: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-			*/
-			cudaSafeCall((buffer = ( uint8_t* )sycl::malloc_device(numBytes, q_ct1), 0));
+			
+			buffer = ( uint8_t* )sycl::malloc_device(numBytes, q_ct1);
 #endif
 			break;
 		case LocationBoth:
 #ifdef HAVE_CUDA
-			/*
-			DPCT1003:35: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-			*/
-			cudaSafeCall((buffer = ( uint8_t* )sycl::malloc_shared(numBytes, q_ct1), 0));
+			
+			buffer = ( uint8_t* )sycl::malloc_shared(numBytes, q_ct1);
 #endif
 			break;
 		case LocationHost:
 #ifdef HAVE_CUDA
-			/*
-			DPCT1003:36: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-			*/
-			cudaSafeCall((buffer = ( uint8_t* )sycl::malloc_host(numBytes, q_ct1), 0));
+			
+			buffer = ( uint8_t* )sycl::malloc_host(numBytes, q_ct1);
 #else
 			buffer = new uint8_t[numBytes];
 #endif
@@ -243,8 +236,8 @@ namespace supra
 
 	void ContainerFactory::freeMemory(uint8_t * pointer, size_t numBytes, ContainerLocation location)
 	{
-  dpct::device_ext& dev_ct1 = dpct::get_current_device();
-  sycl::queue&	  q_ct1 = dev_ct1.default_queue();
+  		dpct::device_ext& dev_ct1 = dpct::get_current_device();
+  		sycl::queue&	  q_ct1 = dev_ct1.default_queue();
 		switch (location)
 		{
 		case LocationGpu:

@@ -42,8 +42,9 @@ namespace supra
 		}
 
 		//Create the storage for the window functions
+		sycl::queue &default_queue=dpct::get_default_queue();
 		m_dataGpu = unique_ptr<Container<ElementType> >(
-			new Container<ElementType>(LocationGpu, cudaStreamPerThread, m_data));
+			new Container<ElementType>(LocationGpu, &default_queue, m_data));
 
 		m_gpuFunction = WindowFunctionGpu(m_numEntriesPerFunction, m_dataGpu->get());
 	}

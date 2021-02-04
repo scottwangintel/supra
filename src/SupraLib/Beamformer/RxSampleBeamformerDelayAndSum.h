@@ -72,7 +72,7 @@ namespace supra
 						{
 							LocationType delayf = initialDelay +
 								computeDelayDTSPACE3D_D(dirX, dirY, dirZ, x_elem, z_elem, scanline_x, scanline_z, depth) + additionalOffset;
-							uint32_t delay = static_cast<uint32_t>(::floor(delayf));
+							uint32_t delay = static_cast<uint32_t>(sycl::floor(delayf));
 							delayf -= delay;
 							if (delay < (numTimesteps - 1))
 							{
@@ -87,7 +87,7 @@ namespace supra
 						}
 						else
 						{
-							uint32_t delay = static_cast<uint32_t>(::round(
+							uint32_t delay = static_cast<uint32_t>(sycl::round(
 								initialDelay + computeDelayDTSPACE3D_D(dirX, dirY, dirZ, x_elem, z_elem, scanline_x, scanline_z, depth)) + additionalOffset);
 							if (delay < numTimesteps)
 							{
@@ -147,7 +147,7 @@ namespace supra
 					{
 						LocationType delayf = initialDelay +
 							computeDelayDTSPACE_D(dirX, dirY, dirZ, x_elem, scanline_x, depth) + additionalOffset;
-						int32_t delay = static_cast<int32_t>(floor(delayf));
+						int32_t delay = static_cast<int32_t>(sycl::floor(delayf));
 						delayf -= delay;
 						if (delay < (numTimesteps - 1))
 						{
@@ -162,7 +162,7 @@ namespace supra
 					}
 					else
 					{
-						int32_t delay = static_cast<int32_t>(round(
+						int32_t delay = static_cast<int32_t>(sycl::round(
 							initialDelay + computeDelayDTSPACE_D(dirX, dirY, dirZ, x_elem, scanline_x, depth)) + additionalOffset);
 						if (delay < numTimesteps)
 						{

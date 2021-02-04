@@ -13,7 +13,10 @@
 #define __ABSTRACTNODE_H__
 
 #include <memory>
+
+#undef emit
 #include <tbb/flow_graph.h>
+#define emit
 
 #include "ConfigurationDictionary.h"
 #include "ValueRangeDictionary.h"

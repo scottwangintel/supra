@@ -15,7 +15,7 @@
 #include <CL/sycl.hpp>
 #include <dpct/dpct.hpp>
 #include "utilities/utility.h"
-#include "utilities/cudaUtility.h"
+#include "utilities/syclUtility.h"
 #include <cmath>
 
 namespace supra
@@ -228,7 +228,7 @@ namespace supra
 	template <typename Ta>
 	inline Ta norm(const vec2T<Ta>& a)
 	{
-		return sqrt(a.x*a.x + a.y*a.y);
+		return sycl::sqrt(a.x*a.x + a.y*a.y);
 	}
 	/// Normalization of a two-vector
 	template <typename Ta>

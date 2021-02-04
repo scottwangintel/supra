@@ -21,7 +21,7 @@
 #include <memory>
 #include <Container.h>
 #include <utilities/utility.h>
-#include <utilities/cudaUtility.h>
+#include <utilities/syclUtility.h>
 #include <cmath>
 
 namespace supra
@@ -51,10 +51,10 @@ namespace supra
 	public:
 		typedef float ElementType;
 
-		WindowFunctionGpu(const WindowFunctionGpu& a)
+		/*WindowFunctionGpu(const WindowFunctionGpu& a)
 			: m_numEntriesPerFunction(a.m_numEntriesPerFunction)
 			, m_data(a.m_data)
-			, m_scale(a.m_scale) {};
+			, m_scale(a.m_scale) {};*/
 
 		//Returns the weight of chosen window a the relative index 
 		// relativeIndex has to be normalized to [-1, 1] (inclusive)

@@ -16,7 +16,7 @@
 #include <dpct/dpct.hpp>
 #include "ContainerFactory.h"
 #ifdef HAVE_CUDA
-#include "utilities/cudaUtility.h"
+#include "utilities/syclUtility.h"
 #endif
 #include "utilities/DataType.h"
 
@@ -48,9 +48,7 @@ namespace supra
 #ifndef HAVE_CUDA
 			location = LocationHost;
 #endif
-#ifdef HAVE_CUDA
-			m_creationEvent = nullptr;
-#endif
+
 			m_numel = numel;
 			m_location = location;
 			m_associatedStream = associatedStream;
@@ -64,19 +62,16 @@ namespace supra
 #ifdef HAVE_CUDA
 			if(location == LocationGpu)
 			{
-				/*
-				DPCT1003:10: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-				*/
-				cudaSafeCall((associatedStream->memcpy(this->get(), data.data(), this->size() * sizeof(T)), 0));
-				createAndRecordEvent();
+				
+				associatedStream->memcpy(this->get(), data.data(), this->size() * sizeof(T));
+				associatedStream->wait();
+				
 			}
 			else if(location == LocationBoth)
 			{
-				/*
-				DPCT1003:11: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-				*/
-				cudaSafeCall((associatedStream->memcpy(this->get(), data.data(), this->size() * sizeof(T)), 0));
-				createAndRecordEvent();
+				
+				associatedStream->memcpy(this->get(), data.data(), this->size() * sizeof(T));
+				associatedStream->wait();
 			}
 			else
 			{
@@ -94,10 +89,8 @@ namespace supra
 			:Container(location, associatedStream, dataEnd - dataBegin)
 		{
 #ifdef HAVE_CUDA
-			/*
-			DPCT1003:12: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-			*/
-			cudaSafeCall((associatedStream->memcpy(this->get(), dataBegin, this->size() * sizeof(T)), 0));
+			
+			associatedStream->memcpy(this->get(), dataBegin, this->size() * sizeof(T));
 			createAndRecordEvent();
 			if (waitFinished)
 			{
@@ -117,35 +110,27 @@ namespace supra
 #ifdef HAVE_CUDA
 			else if (source.m_location == LocationHost && location == LocationGpu)
 			{
-				/*
-				DPCT1003:13: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-				*/
-				cudaSafeCall((source.getStream()->memcpy(this->get(), source.get(), source.size() * sizeof(T)), 0));
-				createAndRecordEvent();
+				
+				source.getStream()->memcpy(this->get(), source.get(), source.size() * sizeof(T));
+				source.getStream()->wait();
 			}
 			else if (source.m_location == LocationGpu && location == LocationHost)
 			{
-				/*
-				DPCT1003:14: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-				*/
-				cudaSafeCall((source.getStream()->memcpy(this->get(), source.get(), source.size() * sizeof(T)), 0));
-				createAndRecordEvent();
+				
+				source.getStream()->memcpy(this->get(), source.get(), source.size() * sizeof(T));
+				source.getStream()->wait();
 			}
 			else if (source.m_location == LocationGpu && location == LocationGpu)
 			{
-				/*
-				DPCT1003:15: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-				*/
-				cudaSafeCall((source.getStream()->memcpy(this->get(), source.get(), source.size() * sizeof(T)), 0));
-				createAndRecordEvent();
+				
+				source.getStream()->memcpy(this->get(), source.get(), source.size() * sizeof(T));
+				source.getStream()->wait();
 			}
 			else
 			{
-				/*
-				DPCT1003:16: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-				*/
-				cudaSafeCall((source.getStream()->memcpy(this->get(), source.get(), source.size() * sizeof(T)), 0));
-				createAndRecordEvent();
+				
+				source.getStream()->memcpy(this->get(), source.get(), source.size() * sizeof(T));
+				source.getStream()->wait();
 			}
 			if (waitFinished)
 			{
@@ -158,13 +143,11 @@ namespace supra
 		~Container()
 		 try {
 #ifdef HAVE_CUDA
-			/*
-			DPCT1027:3: The call to cudaStreamQuery was replaced with 0, because DPC++ currently does not support query operations on queues.
-			*/
+			
 			auto ret = 0;
 			if (ret != 0 && ret != 600 && ret != 4)
 			{
-				cudaSafeCall(ret);
+				syclSafeCall(ret);
 			}
 			// If the driver is currently unloading, we cannot free the memory in any way. Exit will clean up.
 			else if (ret != 4)
@@ -206,18 +189,14 @@ namespace supra
 			}
 			else if(m_location == LocationGpu)
 			{
-				/*
-				DPCT1003:17: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-				*/
-				cudaSafeCall((getStream()->memcpy(ret, this->get(), this->size() * sizeof(T)), 0));
-				cudaSafeCall(cudaStreamSynchronize(getStream()));				
+				
+				getStream()->memcpy(ret, this->get(), this->size() * sizeof(T));
+				getStream()->wait();				
 			}
 			else 
 			{
-				/*
-				DPCT1003:18: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-				*/
-				cudaSafeCall((dpct::get_default_queue().memcpy(ret, this->get(), this->size() * sizeof(T)).wait(), 0));
+				
+				dpct::get_default_queue().memcpy(ret, this->get(), this->size() * sizeof(T)).wait();
 			}
 			return ret;
 #else
@@ -229,29 +208,14 @@ namespace supra
 		{
 #ifdef HAVE_CUDA
 			assert(maxSize >= this->size());
-			/*
-			DPCT1003:19: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-			*/
-			cudaSafeCall((dpct::get_default_queue().memcpy(dst, this->get(), this->size() * sizeof(T)).wait(), 0));
+			
+			dpct::get_default_queue().memcpy(dst, this->get(), this->size() * sizeof(T)).wait();
 #endif
 		}
 
 		void waitCreationFinished()
 		{
-#ifdef HAVE_CUDA
-			if (m_creationEvent)
-			{
-				/*
-				DPCT1003:4: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-				*/
-				cudaSafeCall((m_creationEvent.wait_and_throw(), 0));
-				/*
-				DPCT1027:5: The call to cudaEventDestroy was replaced with 0, because this call is redundant in DPC++.
-				*/
-				cudaSafeCall(0);
-				m_creationEvent = nullptr;
-			}
-#endif
+			m_associatedStream->wait();
 		}
 
 		// returns the number of elements that can be stored in this container
@@ -270,38 +234,18 @@ namespace supra
 	private:
 		void createAndRecordEvent()
 		{
-#ifdef HAVE_CUDA
-			if (!m_creationEvent)
-			{
-				//cudaSafeCall(cudaEventCreateWithFlags(&m_creationEvent, cudaEventBlockingSync | cudaEventDisableTiming));
-				/*
-				DPCT1027:6: The call to cudaEventCreateWithFlags was replaced with 0, because this call is redundant in DPC++.
-				*/
-				cudaSafeCall(0);
-			}
-			/*
-			DPCT1012:7: Detected kernel execution time measurement pattern and generated an initial code for time measurements in SYCL. You can change the way time is measured depending on your goals.
-			*/
-			/*
-			DPCT1024:8: The original code returned the error code that was further consumed by the program logic. This original code was replaced with 0. You may need to rewrite the program logic
-			consuming the error code.
-			*/
-			m_creationEvent_ct1 = std::chrono::steady_clock::now();
-			cudaSafeCall(0);
-#endif
+
 		}
 
 #ifdef HAVE_CUDA
 		void addCallbackStream(std::function<void(sycl::queue*, int)> func)
 		{
 			auto funcPointer = new std::function<void(sycl::queue*, int)>(func);
-			/*
-			DPCT1003:9: Migrated API does not return error code. (*, 0) is inserted. You may need to rewrite this code.
-			*/
-			cudaSafeCall((std::async([ & ]() {
-											 m_associatedStream->wait(); &(Container<T>::cudaDeleteCallback)(m_associatedStream, 0, funcPointer);
-						  }),
-						  0));
+			
+			std::async([ & ]() {
+				m_associatedStream->wait(); 
+				(Container<T>::cudaDeleteCallback)(m_associatedStream, 0, funcPointer);
+						  });
 		}
 #endif
 
@@ -319,10 +263,6 @@ namespace supra
 		ContainerStreamType m_associatedStream;
 		T* m_buffer;
 
-#ifdef HAVE_CUDA
-		sycl::event										   m_creationEvent;
-		std::chrono::time_point<std::chrono::steady_clock> m_creationEvent_ct1;
-#endif
 	};
 }
 

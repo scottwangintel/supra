@@ -30,6 +30,7 @@ namespace supra
 	using std::tuple;
 
 	using namespace logging;
+	
 
 	Beamformer::Beamformer()
 		: m_pRxBeamformerParameters(nullptr)
@@ -931,7 +932,7 @@ namespace supra
 					((relativeIndex.y - 0.5)*m_txFocusWidth)*scanlinePerpDirY;
 				vec elementToFocus = scanlineStart3 + m_txFocusDepth*scanlineDir + focusPointFromFocusCenter - elementPos;
 				double transitTime = m_pTransducer->computeTransitTime(elementIndex, elementToFocus, m_speedOfSoundMMperS, m_correctMatchingLayers);
-				maxTransitTime = max(maxTransitTime, transitTime);
+				maxTransitTime = std::max(maxTransitTime, transitTime);
 			}
 
 			for (size_t activeElementIdxX = txAperture.begin.x; activeElementIdxX <= txAperture.end.x; activeElementIdxX++)
@@ -965,7 +966,7 @@ namespace supra
 					double transitTime = m_pTransducer->computeTransitTime(vec2s{ activeElementIdxX, activeElementIdxY }, elementToFocus, m_speedOfSoundMMperS, m_correctMatchingLayers);
 					double delay = maxTransitTime - transitTime;
 					params.delays[localElementIdxX][localElementIdxY] = delay;
-					maxDelay = max(maxDelay, delay);
+					maxDelay = std::max(maxDelay, delay);
 				}
 			}
 		}
@@ -976,7 +977,7 @@ namespace supra
 			{
 				auto elementPos = std::get<2>(t);
 				vec d = (scanlineStart3 - elementPos)*scanlineDir;
-				maxTransitTime = max(maxTransitTime, (d.x + d.y + d.z + m_txFocusDepth) / m_speedOfSoundMMperS);
+				maxTransitTime = std::max(maxTransitTime, (d.x + d.y + d.z + m_txFocusDepth) / m_speedOfSoundMMperS);
 			}
 
 			for (size_t activeElementIdxX = txAperture.begin.x; activeElementIdxX <= txAperture.end.x; activeElementIdxX++)
@@ -993,7 +994,7 @@ namespace supra
 
 					double delay = maxTransitTime - transitTime;
 					params.delays[localElementIdxX][localElementIdxY] = delay;
-					maxDelay = max(maxDelay, delay);
+					maxDelay = std::max(maxDelay, delay);
 				}
 			}
 		}

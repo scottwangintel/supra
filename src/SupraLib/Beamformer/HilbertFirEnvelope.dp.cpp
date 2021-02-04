@@ -92,10 +92,9 @@ namespace supra
 		sycl::range<3> gridSizeFilter(1, static_cast<unsigned int>((numSamples + blockSizeFilter[ 1 ] - 1) / blockSizeFilter[ 1 ]),
 									  static_cast<unsigned int>((numScanlines + blockSizeFilter[ 2 ] - 1) / blockSizeFilter[ 2 ]));
 
-		/*
-		DPCT1049:27: The workgroup size passed to the SYCL kernel may exceed the limit. To get the device limit, query info::device::max_work_group_size. Adjust the workgroup size if needed.
-		*/
-				inImageData->getStream()->submit([ & ](sycl::handler& cgh) {
+				static long hilbert_call_count = 0;
+
+				sycl::event hilbert_event = inImageData->getStream()->submit([ & ](sycl::handler& cgh) {
 						auto inImageData_get_ct0 = inImageData->get();
 						auto m_hilbertFilter_get_ct1 = m_hilbertFilter->get();
 						auto pEnv_get_ct2 = pEnv->get();
@@ -105,10 +104,12 @@ namespace supra
 								kernelFilterDemodulation(inImageData_get_ct0, m_hilbertFilter_get_ct1, pEnv_get_ct2, numSamples, numScanlines, m_filterLength_ct5, item_ct1);
 						});
 				});
-		/*
-		DPCT1010:26: SYCL uses exceptions to report errors and does not use the error codes. The call was replaced with 0. You need to rewrite this code.
-		*/
-		cudaSafeCall(0);
+
+				hilbert_event.wait();
+				hilbert_call_count++;
+				std::string msg = "Hilbert run " + std::to_string(hilbert_call_count) + " times: ";
+				Report_time(msg, hilbert_event);
+		
 
 		return pEnv;
 	}

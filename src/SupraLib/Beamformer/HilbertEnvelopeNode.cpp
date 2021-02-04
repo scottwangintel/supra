@@ -16,7 +16,7 @@
 #include <utilities/Logging.h>
 
 //TODO remove this later
-#include <utilities/cudaUtility.h>
+#include <utilities/syclUtility.h>
 
 using namespace std;
 

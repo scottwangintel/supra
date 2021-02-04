@@ -12,6 +12,7 @@
 #include <CL/sycl.hpp>
 #include <dpct/dpct.hpp>
 #include "LogCompressor.h"
+#include <utilities/utility.h>
 
 #include <dpct/dpl_utils.hpp>
 #include <oneapi/dpl/execution>
@@ -23,11 +24,9 @@ using namespace std;
 namespace supra
 {
 	template <typename In, typename Out, typename WorkType>
-	/*
-	DPCT1044:29: thrust::unary_function was removed because std::unary_function has been deprecated in C++11. You may need to remove references to typedefs from thrust::unary_function in the class
-	definition.
-	*/
-	struct thrustLogcompress {
+	
+	struct thrustLogcompress
+	{
 		WorkType _inScale;
 		WorkType _scaleOverDenominator;
 
@@ -36,12 +35,12 @@ namespace supra
 		// of the downscaled (_inMax) input signal
 		thrustLogcompress(double dynamicRange, In inMax, Out outMax, double scale)
 			: _inScale(static_cast<WorkType>(dynamicRange / inMax))
-			, _scaleOverDenominator(static_cast<WorkType>(scale * outMax / log10(dynamicRange + 1)))
+			, _scaleOverDenominator(static_cast<WorkType>(scale * outMax / sycl::log10(dynamicRange + 1)))
 		{};
 
 		Out operator()(const In& a) const
 		{
-			WorkType val = log10(abs(static_cast<WorkType>(a))*_inScale + (WorkType)1) * _scaleOverDenominator;
+			WorkType val = sycl::log10(std::abs(static_cast<WorkType>(a))*_inScale + (WorkType)1) * _scaleOverDenominator;
 			return clampCast<Out>(val);
 		}
 	};
@@ -66,11 +65,27 @@ namespace supra
 		}
 
 		thrustLogcompress<InputType, OutputType, WorkType> c(sycl::pow<double>(10, (dynamicRange / 20)), static_cast<InputType>(inMax), outMax, scale);
-		std::transform(thrust::cuda::par.on(inImageData->getStream()), inImageData->get(), inImageData->get() + (width * height * depth), pComprGpu->get(), c);
-		/*
-		DPCT1010:28: SYCL uses exceptions to report errors and does not use the error codes. The call was replaced with 0. You need to rewrite this code.
-		*/
-		cudaSafeCall(0);
+		
+		auto inImageData_t = inImageData->get();
+		auto pComprGpu_t = pComprGpu->get();
+		inImageData->getStream()->wait();
+
+		static long log_call_count = 0;
+		static std::chrono::duration<double, std::milli> log_total_duration(0);
+
+		sycl::event log_event = inImageData->getStream()->submit([&] (sycl::handler &h) {
+
+			h.parallel_for<>(sycl::range<1>(width * height * depth), [=](sycl::id<1> idx){
+				pComprGpu_t[idx] = c(inImageData_t[idx]);
+			});
+			 
+		});
+
+		inImageData->getStream()->wait();
+		log_event.wait();
+		log_call_count++;
+		std::string Log_msg = "Log run " + std::to_string(log_call_count) + " times: ";
+		Report_time(Log_msg, log_event);
 
 		return pComprGpu;
 	}
