@@ -9,8 +9,8 @@
 // 
 // ================================================================================================
 
-#ifndef __RXBEAMFORMERCUDA_H__
-#define __RXBEAMFORMERCUDA_H__
+#ifndef __RXBEAMFORMERSYCL_H__
+#define __RXBEAMFORMERSYCL_H__
 
 #include "USImage.h"
 #include "WindowFunction.h"
@@ -25,7 +25,7 @@ namespace supra
 
 	using std::shared_ptr;
 
-	class RxBeamformerCuda
+	class RxBeamformerSYCL
 	{
 	public:
 		enum RxSampleBeamformer {
@@ -35,8 +35,8 @@ namespace supra
 			INVALID
 		};
 
-		RxBeamformerCuda(const RxBeamformerParameters& parameters);
-		~RxBeamformerCuda();
+		RxBeamformerSYCL(const RxBeamformerParameters& parameters);
+		~RxBeamformerSYCL();
 
 		// perform the receive beamforming
 		template <typename ChannelDataType, typename ImageDataType>
@@ -78,4 +78,4 @@ namespace supra
 	};
 }
 
-#endif //!__RXBEAMFORMERCUDA_H__
+#endif //!__RXBEAMFORMERSYCL_H__

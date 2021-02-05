@@ -13,7 +13,7 @@
 
 #include "USImage.h"
 #include "USRawData.h"
-#include "RxBeamformerCuda.h"
+#include "RxBeamformerSYCL.h"
 
 #include <utilities/Logging.h>
 #include <algorithm>
@@ -146,7 +146,7 @@ namespace supra
 				}
 				if (needNewBeamformer)
 				{
-					m_beamformer = std::make_shared<RxBeamformerCuda>(*m_lastSeenBeamformerParameters);
+					m_beamformer = std::make_shared<RxBeamformerSYCL>(*m_lastSeenBeamformerParameters);
 				}
 
 				switch (pRawData->getDataType())
@@ -200,18 +200,18 @@ namespace supra
 	void BeamformingNode::readBeamformerType()
 	{
 		string beamformer = m_configurationDictionary.get<string>("beamformerType");
-		m_beamformerType = RxBeamformerCuda::DelayAndSum;
+		m_beamformerType = RxBeamformerSYCL::DelayAndSum;
 		if (beamformer == "DelayAndSum")
 		{
-			m_beamformerType = RxBeamformerCuda::DelayAndSum;
+			m_beamformerType = RxBeamformerSYCL::DelayAndSum;
 		}
 		else if (beamformer == "DelayAndStdDev")
 		{
-			m_beamformerType = RxBeamformerCuda::DelayAndStdDev;
+			m_beamformerType = RxBeamformerSYCL::DelayAndStdDev;
 		}
 		else if (beamformer == "TestSignal")
 		{
-			m_beamformerType = RxBeamformerCuda::TestSignal;
+			m_beamformerType = RxBeamformerSYCL::TestSignal;
 		}
 	}
 

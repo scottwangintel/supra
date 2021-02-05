@@ -24,7 +24,7 @@
 #include "RecordObject.h"
 #include "SyncRecordObject.h"
 #include "RxBeamformerParameters.h"
-#include "RxBeamformerCuda.h"
+#include "RxBeamformerSYCL.h"
 
 namespace supra
 {
@@ -67,7 +67,7 @@ namespace supra
 		void readBeamformerType();
 		void updateImageProperties(std::shared_ptr<const USImageProperties> imageProperties);
 
-		std::shared_ptr<RxBeamformerCuda> m_beamformer;
+		std::shared_ptr<RxBeamformerSYCL> m_beamformer;
 		std::shared_ptr<const RxBeamformerParameters> m_lastSeenBeamformerParameters;
 
 		std::shared_ptr<const USImageProperties> m_lastSeenImageProperties;
@@ -81,7 +81,7 @@ namespace supra
 		double m_windowParameter;
 		double m_speedOfSoundMMperS;
 		DataType m_outputType;
-		RxBeamformerCuda::RxSampleBeamformer m_beamformerType;
+		RxBeamformerSYCL::RxSampleBeamformer m_beamformerType;
 		bool m_interpolateTransmits;
 		int32_t m_additionalOffset;
 	};

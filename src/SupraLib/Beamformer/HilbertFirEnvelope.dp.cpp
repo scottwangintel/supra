@@ -9,16 +9,14 @@
 // 
 // ================================================================================================
 
+#include <oneapi/dpl/execution>
+#include <oneapi/dpl/algorithm>
+
 #include <CL/sycl.hpp>
-#include <dpct/dpct.hpp>
 #include "HilbertFirEnvelope.h"
 #include <utilities/utility.h>
 #include <utilities/FirFilterFactory.h>
 #include "helper.h"
-
-#include <dpct/dpl_utils.hpp>
-#include <oneapi/dpl/execution>
-#include <oneapi/dpl/algorithm>
 
 #include <algorithm>
 

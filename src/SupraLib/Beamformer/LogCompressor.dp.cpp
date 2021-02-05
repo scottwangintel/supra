@@ -9,14 +9,13 @@
 // 
 // ================================================================================================
 
+#include <oneapi/dpl/execution>
+#include <oneapi/dpl/algorithm>
+
 #include <CL/sycl.hpp>
-#include <dpct/dpct.hpp>
 #include "LogCompressor.h"
 #include <utilities/utility.h>
 
-#include <dpct/dpl_utils.hpp>
-#include <oneapi/dpl/execution>
-#include <oneapi/dpl/algorithm>
 #include <cmath>
 
 using namespace std;

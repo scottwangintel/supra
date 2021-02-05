@@ -10,7 +10,7 @@
 // ================================================================================================
 #include <CL/sycl.hpp>
 #include <dpct/dpct.hpp>
-#include "RxBeamformerCuda.h"
+#include "RxBeamformerSYCL.h"
 #include "USImage.h"
 #include "USRawData.h"
 #include "RxSampleBeamformerDelayAndSum.h"
@@ -23,7 +23,7 @@
 //TODO ALL ELEMENT/SCANLINE Y positons are actually Z! Change all variable names accordingly
 namespace supra
 {
-	RxBeamformerCuda::RxBeamformerCuda(const RxBeamformerParameters & parameters)
+	RxBeamformerSYCL::RxBeamformerSYCL(const RxBeamformerParameters & parameters)
 		: m_windowFunction(nullptr)
 	{
   
@@ -47,11 +47,11 @@ namespace supra
 		m_pRxElementYs = std::unique_ptr<Container<LocationType>>(new Container<LocationType>(LocationGpu, &q_ct1, parameters.getRxElementYs()));
 	}
 
-	RxBeamformerCuda::~RxBeamformerCuda()
+	RxBeamformerSYCL::~RxBeamformerSYCL()
 	{
 	}
 
-	void RxBeamformerCuda::convertToDtSpace(double dt, double speedOfSoundMMperS, size_t numTransducerElements) const
+	void RxBeamformerSYCL::convertToDtSpace(double dt, double speedOfSoundMMperS, size_t numTransducerElements) const
 	{
 		if (m_lastSeenDt != dt || m_speedOfSoundMMperS != speedOfSoundMMperS)
 		{
@@ -387,7 +387,7 @@ namespace supra
 
 
 	template <class SampleBeamformer, unsigned int maxWindowFunctionNumel, typename RFType, typename ResultType, typename LocationType>
-	void rxBeamformingDTspaceCuda3D(bool interpolateRFlines, bool interpolateBetweenTransmits, size_t numTransducerElements, vec2s elementLayout, size_t numReceivedChannels, size_t numTimesteps,
+	void rxBeamformingDTspaceSYCL3D(bool interpolateRFlines, bool interpolateBetweenTransmits, size_t numTransducerElements, vec2s elementLayout, size_t numReceivedChannels, size_t numTimesteps,
 									const RFType* RF, size_t numTxScanlines, size_t numRxScanlines, const ScanlineRxParameters3D* scanlines, size_t numZs, const LocationType* zs,
 									const LocationType* x_elems, const LocationType* y_elems, LocationType speedOfSound, LocationType dt, uint32_t additionalOffset, LocationType F,
 									const WindowFunctionGpu windowFunction, sycl::queue* stream, ResultType* s)
@@ -474,7 +474,7 @@ namespace supra
 	}
 
 	template <class SampleBeamformer, typename RFType, typename ResultType, typename LocationType>
-	void rxBeamformingDTspaceCuda(bool interpolateRFlines, bool interpolateBetweenTransmits, size_t numTransducerElements, size_t numReceivedChannels, size_t numTimesteps, const RFType* RF,
+	void rxBeamformingDTspaceSYCL(bool interpolateRFlines, bool interpolateBetweenTransmits, size_t numTransducerElements, size_t numReceivedChannels, size_t numTimesteps, const RFType* RF,
 								  size_t numTxScanlines, size_t numRxScanlines, const ScanlineRxParameters3D* scanlines, size_t numZs, const LocationType* zs, const LocationType* x_elems,
 								  LocationType speedOfSound, LocationType dt, uint32_t additionalOffset, LocationType F, const WindowFunctionGpu windowFunction, sycl::queue* stream, ResultType* s, LocationType *mdataGpu)
 	{
@@ -540,8 +540,8 @@ namespace supra
 	}
 
 	template <typename ChannelDataType, typename ImageDataType>
-	shared_ptr<USImage> RxBeamformerCuda::performRxBeamforming(
-		RxBeamformerCuda::RxSampleBeamformer sampleBeamformer,
+	shared_ptr<USImage> RxBeamformerSYCL::performRxBeamforming(
+		RxBeamformerSYCL::RxSampleBeamformer sampleBeamformer,
 		shared_ptr<const USRawData> rawData,
 		double fNumber,
 		double speedOfSoundMMperS,
@@ -573,29 +573,9 @@ namespace supra
 		});
 		gRawData->getStream()->wait();
 
-		auto beamformingFunction3D = &rxBeamformingDTspaceCuda3D<RxSampleBeamformerDelayAndSum, m_windowFunctionNumEntries, ChannelDataType, ImageDataType, LocationType>;
-		auto beamformingFunction2D = &rxBeamformingDTspaceCuda<RxSampleBeamformerDelayAndSum, ChannelDataType, ImageDataType, LocationType>;
+		auto beamformingFunction3D = &rxBeamformingDTspaceSYCL3D<RxSampleBeamformerDelayAndSum, m_windowFunctionNumEntries, ChannelDataType, ImageDataType, LocationType>;
+		auto beamformingFunction2D = &rxBeamformingDTspaceSYCL<RxSampleBeamformerDelayAndSum, ChannelDataType, ImageDataType, LocationType>;
 		
-		// We don't use DelayAndStdDev and TestSignal algorthm, so below code are commented.
-		/*switch (sampleBeamformer)
-		{
-		case DelayAndSum:
-			beamformingFunction3D = &rxBeamformingDTspaceCuda3D<RxSampleBeamformerDelayAndSum, m_windowFunctionNumEntries, ChannelDataType, ImageDataType, LocationType>;
-			beamformingFunction2D = &rxBeamformingDTspaceCuda<RxSampleBeamformerDelayAndSum, ChannelDataType, ImageDataType, LocationType>;
-			break;
-		case DelayAndStdDev:
-			beamformingFunction3D = &rxBeamformingDTspaceCuda3D<RxSampleBeamformerDelayAndStdDev, m_windowFunctionNumEntries, ChannelDataType, ImageDataType, LocationType>;
-			beamformingFunction2D = &rxBeamformingDTspaceCuda<RxSampleBeamformerDelayAndStdDev, ChannelDataType, ImageDataType, LocationType>;
-			break;
-		case TestSignal:
-			beamformingFunction3D = &rxBeamformingDTspaceCuda3D<RxSampleBeamformerTestSignal, m_windowFunctionNumEntries, ChannelDataType, ImageDataType, LocationType>;
-			beamformingFunction2D = &rxBeamformingDTspaceCuda<RxSampleBeamformerTestSignal, ChannelDataType, ImageDataType, LocationType>;
-			break;
-		case INVALID:
-		default:
-			beamformingFunction3D = &rxBeamformingDTspaceCuda3D<RxSampleBeamformerDelayAndSum, m_windowFunctionNumEntries, ChannelDataType, ImageDataType, LocationType>;
-			beamformingFunction2D = &rxBeamformingDTspaceCuda<RxSampleBeamformerDelayAndSum, ChannelDataType, ImageDataType, LocationType>;
-		}*/
 
 
 		convertToDtSpace(dt, speedOfSoundMMperS, rawData->getNumElements());
@@ -669,8 +649,8 @@ namespace supra
 	}
 
 	template
-	shared_ptr<USImage> RxBeamformerCuda::performRxBeamforming<int16_t, int16_t>(
-		RxBeamformerCuda::RxSampleBeamformer sampleBeamformer,
+	shared_ptr<USImage> RxBeamformerSYCL::performRxBeamforming<int16_t, int16_t>(
+		RxBeamformerSYCL::RxSampleBeamformer sampleBeamformer,
 		shared_ptr<const USRawData> rawData,
 		double fNumber,
 		double speedOfSoundMMperS,
@@ -679,8 +659,8 @@ namespace supra
 		bool interpolateBetweenTransmits,
 		int32_t additionalOffset) const;
 	template
-	shared_ptr<USImage> RxBeamformerCuda::performRxBeamforming<int16_t, float>(
-		RxBeamformerCuda::RxSampleBeamformer sampleBeamformer,
+	shared_ptr<USImage> RxBeamformerSYCL::performRxBeamforming<int16_t, float>(
+		RxBeamformerSYCL::RxSampleBeamformer sampleBeamformer,
 		shared_ptr<const USRawData> rawData,
 		double fNumber,
 		double speedOfSoundMMperS,
@@ -689,8 +669,8 @@ namespace supra
 		bool interpolateBetweenTransmits,
 		int32_t additionalOffset) const;
 	template
-	shared_ptr<USImage> RxBeamformerCuda::performRxBeamforming<float, int16_t>(
-		RxBeamformerCuda::RxSampleBeamformer sampleBeamformer,
+	shared_ptr<USImage> RxBeamformerSYCL::performRxBeamforming<float, int16_t>(
+		RxBeamformerSYCL::RxSampleBeamformer sampleBeamformer,
 		shared_ptr<const USRawData> rawData,
 		double fNumber,
 		double speedOfSoundMMperS,
@@ -699,8 +679,8 @@ namespace supra
 		bool interpolateBetweenTransmits,
 		int32_t additionalOffset) const;
 	template
-	shared_ptr<USImage> RxBeamformerCuda::performRxBeamforming<float, float>(
-		RxBeamformerCuda::RxSampleBeamformer sampleBeamformer,
+	shared_ptr<USImage> RxBeamformerSYCL::performRxBeamforming<float, float>(
+		RxBeamformerSYCL::RxSampleBeamformer sampleBeamformer,
 		shared_ptr<const USRawData> rawData,
 		double fNumber,
 		double speedOfSoundMMperS,

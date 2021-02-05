@@ -13,7 +13,7 @@
 // ================================================================================================
 
 #include "Beamformer.h"
-#include "RxBeamformerCuda.h"
+#include "RxBeamformerSYCL.h"
 
 #include <exception>
 #include <cassert>

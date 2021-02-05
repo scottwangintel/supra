@@ -24,17 +24,16 @@
 //
 // ================================================================================================
 
+#include <oneapi/dpl/execution>
+#include <oneapi/dpl/algorithm>
+
 #include <CL/sycl.hpp>
-#include <dpct/dpct.hpp>
 #include "ScanConverter.h"
 #include <cassert>
 #include <utilities/syclUtility.h>
 #include <utilities/utility.h>
 #include <utilities/Logging.h>
 
-#include <dpct/dpl_utils.hpp>
-#include <oneapi/dpl/execution>
-#include <oneapi/dpl/algorithm>
 #include <cmath>
 
 using namespace std;
