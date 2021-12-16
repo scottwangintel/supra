@@ -1,5 +1,10 @@
 ![SUPRA Logo](http://campar.in.tum.de/files/goeblr/supra_logo_full_small.png "SUPRA Logo")
 
+Notes:
+* This branch already merged the https://github.com/intel/supra-on-oneapi/ with https://github.com/IFL-CAMP/supra.
+* Please follow https://github.com/intel/supra-on-oneapi/#readme to run the test.
+
+
 SUPRA: Open Source Software Defined Ultrasound Processing for Real-Time Applications
 ================
 
